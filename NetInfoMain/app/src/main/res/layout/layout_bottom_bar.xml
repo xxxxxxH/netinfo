@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_height="48dp">
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_add"
+            android:text="@string/add"
+            style="@style/bottom_tv" />
+
+        <TextView
+            android:id="@+id/tv_del"
+            android:text="@string/del"
+            style="@style/bottom_tv" />
+
+        <TextView
+            android:id="@+id/tv_save"
+            android:text="@string/save"
+            style="@style/bottom_tv" />
+
+        <TextView
+            android:id="@+id/tv_submit"
+            style="@style/bottom_tv"
+            android:text="@string/submit"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">NetInfoMain</string>
+    <string name="add">新增</string>
+    <string name="del">删除</string>
+    <string name="save">保存</string>
+    <string name="submit">提交</string>
+    <string name="room_name">机房名称</string>
+    <string name="room_loc">机房坐标</string>
+    <string name="net_name">网元名称</string>
+    <string name="board_name">单板名称</string>
+    <string name="port_name">端口名称</string>
+    <string name="fiber_name">光纤名称</string>
+    <string name="img">现场图片</string>
+    <string name="custom_name">自定义字段</string>
+    <string name="scrambling_id">加扰ID</string>
+    <string name="scrambling_time_start">加扰开始时间</string>
+    <string name="scrambling_time_end">加扰结束时间</string>
+    <string name="scrambling_rate">加扰频率</string>
+    <string name="scrambling_code">加扰码型</string>
+    <string name="scrambling_loc">经纬度</string>
+    <string name="child_net_name">子网名</string>
+    <string name="room_info_input">机房信息录入</string>
+    <string name="scrambling_info_input">加扰信息录入</string>
+    <string name="input">请输入</string>
+</resources>
