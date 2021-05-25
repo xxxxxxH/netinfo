@@ -6,11 +6,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:id="@+id/ll_f_"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -84,10 +86,10 @@
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
                         android:gravity="center"
                         android:hint="@string/scrambling_time_start"
                         android:paddingHorizontal="12dp"
-                        android:background="@drawable/et_bg"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -124,10 +126,10 @@
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
                         android:gravity="center"
                         android:hint="@string/scrambling_time_end"
                         android:paddingHorizontal="12dp"
-                        android:background="@drawable/et_bg"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -214,10 +216,10 @@
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
                         android:gravity="center"
                         android:hint="@string/scrambling_loc"
                         android:paddingHorizontal="12dp"
-                        android:background="@drawable/et_bg"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -231,6 +233,7 @@
                     android:scaleType="center"
                     android:src="@drawable/activity_main_refresh_icon" />
             </RelativeLayout>
+
         </LinearLayout>
     </ScrollView>
 
@@ -239,7 +242,7 @@
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
+        android:background="@color/white"
         android:orientation="horizontal">
 
         <TextView
