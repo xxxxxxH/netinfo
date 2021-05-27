@@ -45,4 +45,5 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     implementation 'com.contrarywind:Android-PickerView:4.1.9'
+    implementation 'com.google.code.gson:gson:2.8.7'
 }

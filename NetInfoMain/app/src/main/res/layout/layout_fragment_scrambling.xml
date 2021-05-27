@@ -21,7 +21,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:layout_margin="12dp"
                     android:gravity="center"
@@ -29,6 +29,7 @@
                     android:textColor="@color/black" />
 
                 <EditText
+                    android:id="@+id/scrambling_id"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/et_bg"
@@ -46,7 +47,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:layout_margin="12dp"
                     android:gravity="center"
@@ -73,10 +74,10 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/scrambling_img_add">
+                    android:layout_toStartOf="@+id/start_time_refresh">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -96,7 +97,7 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/scrambling_img_add"
+                    android:id="@+id/start_time_refresh"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -114,10 +115,10 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/scrambling_img_add_end">
+                    android:layout_toStartOf="@+id/end_time_refresh">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -125,6 +126,7 @@
                         android:textColor="@color/black" />
 
                     <EditText
+                        android:id="@+id/end_time"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/et_bg"
@@ -136,7 +138,7 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/scrambling_img_add_end"
+                    android:id="@+id/end_time_refresh"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -153,7 +155,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:layout_margin="12dp"
                     android:gravity="center"
@@ -178,7 +180,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:layout_margin="12dp"
                     android:gravity="center"
@@ -207,20 +209,18 @@
                     android:layout_toStartOf="@+id/scrambling_img_add_loc">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
                         android:text="@string/scrambling_loc"
                         android:textColor="@color/black" />
 
-                    <EditText
+                    <TextView
+                        android:id="@+id/scrambling_loc"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/et_bg"
                         android:gravity="center"
-                        android:hint="@string/scrambling_loc"
-                        android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>

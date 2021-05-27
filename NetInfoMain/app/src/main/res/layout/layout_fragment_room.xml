@@ -6,7 +6,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="48dp">
 
         <LinearLayout
             android:id="@+id/ll_f_r"
@@ -22,7 +23,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:layout_margin="12dp"
                     android:gravity="center"
@@ -52,7 +53,7 @@
                     android:layout_toStartOf="@+id/room_img_loc">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -89,10 +90,11 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginEnd="12dp"
                     android:layout_toStartOf="@+id/net_img_add">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -117,7 +119,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="12dp"
                     android:scaleType="center"
-                    android:src="@drawable/activity_main_add_icon" />
+                    android:src="@drawable/activity_main_add_icon"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -129,10 +132,11 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginEnd="12dp"
                     android:layout_toStartOf="@+id/board_img_add">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -157,7 +161,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="12dp"
                     android:scaleType="center"
-                    android:src="@drawable/activity_main_add_icon" />
+                    android:src="@drawable/activity_main_add_icon"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -169,10 +174,11 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginEnd="12dp"
                     android:layout_toStartOf="@+id/port_img_add">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -197,7 +203,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="12dp"
                     android:scaleType="center"
-                    android:src="@drawable/activity_main_add_icon" />
+                    android:src="@drawable/activity_main_add_icon"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -209,10 +216,11 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginEnd="12dp"
                     android:layout_toStartOf="@+id/fiber_img_add">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -237,7 +245,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="12dp"
                     android:scaleType="center"
-                    android:src="@drawable/activity_main_add_icon" />
+                    android:src="@drawable/activity_main_add_icon"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -252,7 +261,7 @@
                     android:layout_toStartOf="@+id/img_add">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
@@ -262,8 +271,8 @@
                     <ImageView
                         android:id="@+id/img_name"
                         android:layout_width="100dp"
-                        android:scaleType="centerCrop"
-                        android:layout_height="100dp" />
+                        android:layout_height="100dp"
+                        android:scaleType="centerCrop" />
                 </LinearLayout>
 
                 <ImageView

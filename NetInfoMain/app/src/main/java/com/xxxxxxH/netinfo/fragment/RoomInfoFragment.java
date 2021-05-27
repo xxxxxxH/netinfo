@@ -1,6 +1,6 @@
 package com.xxxxxxH.netinfo.fragment;
 
-import android.Manifest.permission;
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,19 +31,26 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FileUtils;
+import com.xxxxxxH.netinfo.utils.FormatUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DecimalFormat;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class RoomInfoFragment extends Fragment implements View.OnClickListener {
 
@@ -89,7 +96,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
 
     @SuppressLint("ClickableViewAccessibility")
     private void initView() {
-//        roomName.setOnClickListener(this);
+
         roomImgLoc.setOnClickListener(this);
         netAdd.setOnClickListener(this);
         imgAdd.setOnClickListener(this);
@@ -104,19 +111,6 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
                 return false;
             }
         });
-    }
-
-    public void getLocation() {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getActivity(), "请打开gps定位", Toast.LENGTH_LONG).show();
-            return;
-        }
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new MyLocationListener());
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new MyLocationListener());
     }
 
     @Override
@@ -234,9 +228,14 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             path = uri.getPath();
         }
+
         String finalPath = Environment.getExternalStorageDirectory() + File.separator + "test" + File.separator + System
                 .currentTimeMillis() + ".jpg";
-        new File(path).renameTo(new File(finalPath));
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        FileUtils.copyFile(new File(path), finalPath);
         Bitmap bitmap = BitmapFactory.decodeFile(finalPath);
         img.setImageBitmap(bitmap);
     }
@@ -256,7 +255,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode,
-            @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+                                 @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -281,19 +280,61 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    public void getLocation() {
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getActivity(), "请打开gps定位", Toast.LENGTH_LONG).show();
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new MyLocationListener());
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new MyLocationListener());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        roomLoc.setText(FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)) +
+                " , " + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)));
+    }
+
     class MyLocationListener implements LocationListener {
+
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
+            Log.i("TAG", "GPS Enabled");
+        }
+
+        @Override
+        public void onProviderDisabled(@NonNull String provider) {
+            Log.i("TAG", "GPS Disabled");
+        }
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
             if (curLongitude == 0.0 && curLatitude == 0.0) {
                 curLongitude = location.getLongitude();
                 curLatitude = location.getLatitude();
-                DecimalFormat df = new java.text.DecimalFormat("#.0000");
-                roomLoc.setText(df.format(curLongitude) + " , " + df.format(curLatitude));
+                roomLoc.setText(FormatUtils.formatDouble(curLongitude) + " , " + FormatUtils.formatDouble(curLatitude));
+                MMKV.defaultMMKV().encode(Constant.Longitude, curLongitude);
+                MMKV.defaultMMKV().encode(Constant.Latitude, curLatitude);
             }
             Log.i("TAG", "当前经度 = " + location.getLongitude());
             Log.i("TAG", "当前纬度 = " + location.getLatitude());
         }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
     }
+
 
 }
