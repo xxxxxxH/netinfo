@@ -30,6 +30,7 @@
                     android:textColor="@color/black" />
 
                 <EditText
+                    android:id="@+id/room_name_et"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/et_bg"
@@ -39,31 +40,45 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_margin="12dp"
-                    android:gravity="center"
-                    android:text="@string/room_loc"
-                    android:textColor="@color/black" />
-
-                <EditText
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/et_bg"
-                    android:hint="@string/input"
-                    android:paddingHorizontal="12dp"
-                    android:textColor="@color/black"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    android:layout_toStartOf="@+id/room_img_loc">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="@string/room_loc"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/room_loc_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:hint="@string/room_loc"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/room_img_loc"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="center"
+                    android:src="@drawable/activity_main_refresh_icon" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -84,11 +99,12 @@
                         android:text="@string/net_name"
                         android:textColor="@color/black" />
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/net_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:hint="@string/net_name"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
@@ -123,11 +139,12 @@
                         android:text="@string/board_name"
                         android:textColor="@color/black" />
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/board_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:hint="@string/board_name"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
@@ -162,11 +179,12 @@
                         android:text="@string/port_name"
                         android:textColor="@color/black" />
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/port_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:hint="@string/port_name"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
@@ -201,11 +219,12 @@
                         android:text="@string/fiber_name"
                         android:textColor="@color/black" />
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/fiber_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:hint="@string/net_name"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
@@ -213,6 +232,42 @@
 
                 <ImageView
                     android:id="@+id/fiber_img_add"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="center"
+                    android:src="@drawable/activity_main_add_icon" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@+id/img_add">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="@string/img"
+                        android:textColor="@color/black" />
+
+                    <ImageView
+                        android:id="@+id/img_name"
+                        android:layout_width="100dp"
+                        android:scaleType="centerCrop"
+                        android:layout_height="100dp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/img_add"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
