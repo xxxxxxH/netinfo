@@ -55,6 +55,7 @@
                     android:textColor="@color/black" />
 
                 <EditText
+                    android:id="@+id/child_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/et_bg"
@@ -163,6 +164,7 @@
                     android:textColor="@color/black" />
 
                 <EditText
+                    android:id="@+id/scrambling_rate"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/et_bg"
@@ -188,6 +190,7 @@
                     android:textColor="@color/black" />
 
                 <EditText
+                    android:id="@+id/scrambling_code"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/et_bg"

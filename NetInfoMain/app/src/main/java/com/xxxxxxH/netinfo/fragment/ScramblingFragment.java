@@ -20,28 +20,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
-
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class ScramblingFragment extends Fragment implements OnClickListener {
 
@@ -55,6 +49,14 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
     public ImageView startRefresh;
     @BindView(R.id.end_time_refresh)
     public ImageView endRefresh;
+    @BindView(R.id.scrambling_id)
+    public EditText id;
+    @BindView(R.id.child_name)
+    public EditText childName;
+    @BindView(R.id.scrambling_rate)
+    public EditText rate;
+    @BindView(R.id.scrambling_code)
+    public EditText code;
 
     private double curLongitude = 0;
     private double curLatitude = 0;
@@ -199,5 +201,42 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
         public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
+    }
+
+    public DataEntity getScramblingInfo() {
+        DataEntity entity = new DataEntity();
+        entity.setScramblingId(id == null || TextUtils.isEmpty(id.getText().toString()) ? "" : id.getText().toString());
+        entity.setChildName(childName == null || TextUtils.isEmpty(childName.getText().toString()) ? ""
+                : childName.getText().toString());
+        entity.setStartTime(start == null ||
+                TextUtils.isEmpty(start.getText().toString()) ? "" : start.getText().toString());
+        entity.setEndTime(end == null || TextUtils.isEmpty(end.getText().toString()) ? "" : end.getText().toString());
+        entity.setScramblingRate(rate == null ||
+                TextUtils.isEmpty(rate.getText().toString()) ? "" : rate.getText().toString());
+        entity.setScramblingCode(code == null ||
+                TextUtils.isEmpty(code.getText().toString()) ? "" : code.getText().toString());
+        entity.setScramblingLoc(loc == null ||
+                TextUtils.isEmpty(loc.getText().toString()) ? "" : loc.getText().toString());
+        return entity;
+    }
+
+    public void setViewData(DataEntity entity) {
+        id.setText(entity.getScramblingId());
+        childName.setText(entity.getChildName());
+        start.setText(entity.getStartTime());
+        end.setText(entity.getEndTime());
+        rate.setText(entity.getScramblingRate());
+        code.setText(entity.getScramblingCode());
+        loc.setText(entity.getScramblingLoc());
+    }
+
+    public void clearScramblingInfo() {
+        id.setText("");
+        childName.setText("");
+        start.setText("");
+        end.setText("");
+        rate.setText("");
+        code.setText("");
+        loc.setText("");
     }
 }

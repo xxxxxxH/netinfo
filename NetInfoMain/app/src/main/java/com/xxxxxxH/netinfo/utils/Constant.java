@@ -8,6 +8,6 @@ import java.util.List;
 public class Constant {
     public static final String Longitude = "Longitude";
     public static final String Latitude = "Latitude";
-    public static final List<String> imgList = new ArrayList<>();
-    public static final List<DataEntity> dataList = new ArrayList<>();
+    public static final String KEY_ROOM_NAME = "KEY_ROOM_NAME";
+    public static ArrayList<String> imgList = null;
 }

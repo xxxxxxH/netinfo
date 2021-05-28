@@ -2,57 +2,49 @@ package com.xxxxxxH.netinfo.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-
-import com.tencent.mmkv.MMKV;
-import com.xxxxxxH.netinfo.R;
-import com.xxxxxxH.netinfo.utils.Constant;
-import com.xxxxxxH.netinfo.utils.FileUtils;
-import com.xxxxxxH.netinfo.utils.FormatUtils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.tencent.mmkv.MMKV;
+import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
+import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter.OnItemClickListener;
+import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FormatUtils;
+import com.xxxxxxH.netinfo.utils.GlideEngine;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RoomInfoFragment extends Fragment implements View.OnClickListener {
+public class RoomInfoFragment extends Fragment implements View.OnClickListener, OnItemClickListener {
 
     @BindView(R.id.room_loc_tv)
     TextView roomLoc;
@@ -62,10 +54,21 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
     ImageView roomImgLoc;
     @BindView(R.id.net_img_add)
     ImageView netAdd;
-    @BindView(R.id.img_name)
-    ImageView img;
     @BindView(R.id.img_add)
     ImageView imgAdd;
+    @BindView(R.id.img_recycler)
+    RecyclerView recyclerView;
+    @BindView(R.id.room_name_select)
+    ImageView select;
+    @BindView(R.id.net_name)
+    EditText netName;
+    @BindView(R.id.board_name)
+    EditText boardName;
+    @BindView(R.id.port_name)
+    EditText portName;
+    @BindView(R.id.fiber_name)
+    EditText fiberName;
+
 
     private LocationManager locationManager;
     private Dialog roomDialog = null;
@@ -75,6 +78,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
     private Uri imageUri;
     public static final int TAKE_PHOTO = 1;//声明一个请求码，用于识别返回的结果
     public static final int OPEN_ALBUM = 2;//声明一个请求码，用于识别返回的结果
+    public RoomInfoImgAdapter adapter;
 
     public RoomInfoFragment() {
     }
@@ -97,20 +101,16 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("ClickableViewAccessibility")
     private void initView() {
 
+        adapter = new RoomInfoImgAdapter(getActivity(), null);
+        adapter.setOnItemClickListener(this);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
+
         roomImgLoc.setOnClickListener(this);
         netAdd.setOnClickListener(this);
         imgAdd.setOnClickListener(this);
 
-        roomName.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    roomDialog = roomNameDialog();
-                    roomDialog.show();
-                }
-                return false;
-            }
-        });
     }
 
     @Override
@@ -137,10 +137,10 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
                 dialog.show();
                 break;
             case R.id.camera:
-                openCamera();
+                openCameraV2();
                 break;
             case R.id.photo:
-                openAlbum();
+                setOpenAlbumV2();
                 break;
 
         }
@@ -168,116 +168,49 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
         return dialog;
     }
 
-    private void openCamera() {
-        final String filePath =
-                Environment.getExternalStorageDirectory() + File.separator + "test" + File.separator + System
-                        .currentTimeMillis() + ".jpg";
-        File outputImage = new File(filePath);
-        try//判断图片是否存在，存在则删除在创建，不存在则直接创建
-        {
-            if (!outputImage.getParentFile().exists()) {
-                outputImage.getParentFile().mkdirs();
-            }
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
-
-            outputImage.createNewFile();
-
-            if (Build.VERSION.SDK_INT >= 24) {
-                imageUri = FileProvider.getUriForFile(getActivity(),
-                        "com.xxxxxxH.netinfo.fileprovider", outputImage);
-            } else {
-                imageUri = Uri.fromFile(outputImage);
-            }
-            //使用隐示的Intent，系统会找到与它对应的活动，即调用摄像头，并把它存储
-            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(intent, TAKE_PHOTO);
-            //调用会返回结果的开启方式，返回成功的话，则把它显示出来
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, OPEN_ALBUM);
-    }
-
-    //安卓版本大于4.4的处理方法
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void handImage(Intent data) {
-        String path = null;
-        Uri uri = data.getData();
-        //根据不同的uri进行不同的解析
-        if (DocumentsContract.isDocumentUri(getActivity(), uri)) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                path = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris
-                        .withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
-                path = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            path = getImagePath(uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            path = uri.getPath();
-        }
-
-        String finalPath = Environment.getExternalStorageDirectory() + File.separator + "test" + File.separator + System
-                .currentTimeMillis() + ".jpg";
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test");
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        FileUtils.copyFile(new File(path), finalPath);
-        Bitmap bitmap = BitmapFactory.decodeFile(finalPath);
-        img.setImageBitmap(bitmap);
-    }
-
-    //content类型的uri获取图片路径的方法
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        Cursor cursor = getActivity().getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode,
-                                 @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+            @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case TAKE_PHOTO:
-                if (resultCode == Activity.RESULT_OK) {
-                    try {
-                        Bitmap bitmap = BitmapFactory
-                                .decodeStream(getActivity().getContentResolver().openInputStream(imageUri));
-                        img.setImageBitmap(bitmap);
-                        //将图片解析成Bitmap对象，并把它显现出来
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-            case OPEN_ALBUM:
-                if (resultCode == Activity.RESULT_OK) {
-                    handImage(data);
-                }
-                break;
-            default:
-                break;
+        if (resultCode == getActivity().RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                    // 结果回调
+                    List<LocalMedia> albumList = PictureSelector.obtainMultipleResult(data);
+                    getImgPath(albumList);
+                    adapter.updateData(Constant.imgList);
+                    break;
+                case PictureConfig.REQUEST_CAMERA:
+                    // 结果回调
+                    List<LocalMedia> cameraList = PictureSelector.obtainMultipleResult(data);
+                    getImgPath(cameraList);
+                    adapter.updateData(Constant.imgList);
+                    break;
+                default:
+                    break;
+            }
         }
+//        switch (requestCode) {
+//            case TAKE_PHOTO:
+//                if (resultCode == Activity.RESULT_OK) {
+//                    try {
+//                        Bitmap bitmap = BitmapFactory
+//                                .decodeStream(getActivity().getContentResolver().openInputStream(imageUri));
+//                        img.setImageBitmap(bitmap);
+//                        //将图片解析成Bitmap对象，并把它显现出来
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                break;
+//            case OPEN_ALBUM:
+//                if (resultCode == Activity.RESULT_OK) {
+//                    handImage(data);
+//                }
+//                break;
+//            default:
+//                break;
+//        }
     }
 
     public void getLocation() {
@@ -298,11 +231,18 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
         super.onPause();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onStart() {
         super.onStart();
         roomLoc.setText(FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)) +
                 " , " + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)));
+        adapter.updateData(Constant.imgList);
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        adapter.deleteItem(position);
     }
 
     class MyLocationListener implements LocationListener {
@@ -310,6 +250,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onProviderEnabled(@NonNull String provider) {
             Log.i("TAG", "GPS Enabled");
+            Toast.makeText(getActivity(), "GPS 不可用 请打开GPS", Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -337,4 +278,58 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener {
     }
 
 
+    private void openCameraV2() {
+        PictureSelector.create(this)
+                .openCamera(PictureMimeType.ofImage())
+                .imageEngine(GlideEngine.createGlideEngine())
+                .forResult(PictureConfig.REQUEST_CAMERA);
+    }
+
+    private void setOpenAlbumV2() {
+        PictureSelector.create(this)
+                .openGallery(PictureMimeType.ofImage())
+                .imageEngine(GlideEngine.createGlideEngine())
+                .forResult(PictureConfig.CHOOSE_REQUEST);
+    }
+
+    private void getImgPath(List<LocalMedia> list) {
+        for (LocalMedia item : list) {
+            Constant.imgList.add(item.getRealPath());
+        }
+    }
+
+    public ArrayList<String> getImgList() {
+        return adapter.getData();
+    }
+
+    public DataEntity getRoomInfo() {
+        DataEntity entity = new DataEntity();
+        entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" : roomName.getText().toString());
+        entity.setRoomLoc(TextUtils.isEmpty(roomLoc.getText().toString()) ? "" : roomLoc.getText().toString());
+        entity.setNetName(TextUtils.isEmpty(netName.getText().toString()) ? "" : netName.getText().toString());
+        entity.setBoardName(TextUtils.isEmpty(boardName.getText().toString()) ? "" : boardName.getText().toString());
+        entity.setPortName(TextUtils.isEmpty(portName.getText().toString()) ? "" : portName.getText().toString());
+        entity.setFiberName(TextUtils.isEmpty(fiberName.getText().toString()) ? "" : fiberName.getText().toString());
+        return entity;
+    }
+
+    public void clearRoomInfo() {
+        roomName.setText("");
+        netName.setText("");
+        boardName.setText("");
+        portName.setText("");
+        fiberName.setText("");
+        Constant.imgList = new ArrayList<>();
+        adapter.updateData(Constant.imgList);
+    }
+
+    public void setViewData(DataEntity entity) {
+        roomName.setText(entity.getRoomName());
+        roomLoc.setText(entity.getRoomLoc());
+        netName.setText(entity.getRoomLoc());
+        boardName.setText(entity.getRoomLoc());
+        portName.setText(entity.getRoomLoc());
+        fiberName.setText(entity.getRoomLoc());
+        adapter.updateData(entity.getImgList());
+    }
 }
