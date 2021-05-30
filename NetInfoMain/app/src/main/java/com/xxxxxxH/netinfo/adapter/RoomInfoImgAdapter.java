@@ -9,7 +9,10 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.GlideEngine;
+import com.xxxxxxH.netinfo.utils.OnItemClickListener;
+
 import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +27,7 @@ public class RoomInfoImgAdapter extends RecyclerView.Adapter<RoomInfoImgAdapter.
 
     ArrayList<String> data;
     Context context;
-    private RoomInfoImgAdapter.OnItemClickListener onItemClickListener;
+    private OnItemClickListener onItemClickListener;
 
     public RoomInfoImgAdapter(Context context, ArrayList<String> data) {
         this.context = context;
@@ -68,7 +71,7 @@ public class RoomInfoImgAdapter extends RecyclerView.Adapter<RoomInfoImgAdapter.
             public void onClick(View v) {
                 if(onItemClickListener != null) {
                     int pos = holder.getLayoutPosition();
-                    onItemClickListener.onItemClick(holder.itemView, pos);
+                    onItemClickListener.onItemClick(holder.itemView, pos, Constant.FLAG_IMG);
                 }
             }
         });
@@ -93,9 +96,5 @@ public class RoomInfoImgAdapter extends RecyclerView.Adapter<RoomInfoImgAdapter.
             imageView = itemView.findViewById(R.id.item_img);
             del = itemView.findViewById(R.id.item_del);
         }
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(View view, int position);
     }
 }

@@ -1,7 +1,5 @@
 package com.xxxxxxH.netinfo.sendmain;
 
-import android.util.Log;
-
 public class EmailUtil {
     private static final String TAG = "EmailUtil";
 
@@ -14,7 +12,7 @@ public class EmailUtil {
      * @param fromPwd     发送方邮箱授权码
      * @param filePath    附件
      */
-    public static void autoSendMail(String title, String content, String toAddress, String host, String fromAddress, String fromPwd, String[] filePath) {
+    public static boolean autoSendMail(String title, String content, String toAddress, String host, String fromAddress, String fromPwd, String[] filePath) {
         MailSenderInfo mailInfo = new MailSenderInfo();
         mailInfo.setMailServerHost(host);
         mailInfo.setValidate(true);
@@ -26,11 +24,10 @@ public class EmailUtil {
         mailInfo.setContent(content);
         // 这个类主要来发送邮件
         SimpleMailSender sms = new SimpleMailSender();
-        if (filePath == null)
-            sms.sendTextMail(mailInfo);
+        if (filePath == null || filePath.length == 0)
+            return sms.sendTextMail(mailInfo);
         else
-            sms.sendTextAndFileMail(mailInfo, filePath);
-        Log.d(TAG, "autoSendMail: content: " + content);
+            return sms.sendTextAndFileMail(mailInfo, filePath);
     }
 
 }
