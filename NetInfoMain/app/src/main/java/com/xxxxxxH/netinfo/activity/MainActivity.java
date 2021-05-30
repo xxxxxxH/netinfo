@@ -83,6 +83,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (loadingDialog != null && loadingDialog.isShowing()) loadingDialog.dismiss();
             switch (msg.what) {
                 case 1:
+                    Constant.ADD = true;
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
+                    room.setTextColor(Color.RED);
+                    scram.setTextColor(Color.BLACK);
+                    Constant.customItem.clear();
+                    delCache(roomFg.getKey());
+                    roomFg.removeCustomItem();
+                    roomFg.clearRoomInfo();
+                    scramFg.removeCustomItem();
+                    scramFg.clearScramblingInfo();
                     Toast.makeText(MainActivity.this, "发送邮件成功", Toast.LENGTH_SHORT).show();
                     break;
                 case -1:

@@ -71,6 +71,8 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
     public ImageView customField;
     @BindView(R.id.ll_f_)
     public LinearLayout rootView;
+    @BindView(R.id.scrambling_img_add_loc)
+    public ImageView refreshLoc;
 
     private double curLongitude = 0;
     private double curLatitude = 0;
@@ -105,7 +107,8 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
         startRefresh.setOnClickListener(this);
         endRefresh.setOnClickListener(this);
         customField.setOnClickListener(this);
-        id.setText(FormatUtils.formatDate(new Date()) + " , " + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)) + "," + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)));
+        refreshLoc.setOnClickListener(this);
+        id.setText(System.currentTimeMillis() + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)).replace(".", "") + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)).replace(".", ""));
         start.setText(FormatUtils.formatDate(new Date()));
         end.setText(FormatUtils.formatDate(new Date()));
 
@@ -136,14 +139,21 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
+            case R.id.scrambling_img_add_loc:
+                curLongitude = 0.0;
+                curLatitude = 0.0;
+                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.start_time:
 
                 break;
             case R.id.start_time_refresh:
                 start.setText(FormatUtils.formatDate(new Date()));
+                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.end_time_refresh:
                 end.setText(FormatUtils.formatDate(new Date()));
+                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.custom_img_add_s:
                 if (customItemDlg == null) {
@@ -217,20 +227,21 @@ public class ScramblingFragment extends Fragment implements OnClickListener {
         DataEntity entity = ((MainActivity) getActivity()).getCurRoomInfo();
         if (entity != null) {
             setViewData(entity);
-        }else {
+        } else {
             removeCustomItem();
             clearScramblingInfo();
         }
 
-        setDefaultText(id,
-                FormatUtils.formatDate(new Date()) + " , " + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)) + "," + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)));
+        setDefaultText(id,System.currentTimeMillis() +
+                FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)).replace(".", "") +
+                FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)).replace(".", ""));
 
         setDefaultText(start, FormatUtils.formatDate(new Date()));
         setDefaultText(end, FormatUtils.formatDate(new Date()));
     }
 
     private void setDefaultText(EditText view, String defaultStr) {
-        if (view != null && TextUtils.equals(view.getText().toString(),"")){
+        if (view != null && TextUtils.equals(view.getText().toString(), "")) {
             view.setText(defaultStr);
         }
     }

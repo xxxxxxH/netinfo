@@ -149,6 +149,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
             case R.id.room_img_loc:
                 curLongitude = 0.0;
                 curLatitude = 0.0;
+                Toast.makeText(Constant.Context,"刷新成功",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.net_img_add:
                 if (roomDialog == null) {
