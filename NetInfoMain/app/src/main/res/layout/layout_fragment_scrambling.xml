@@ -14,31 +14,47 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="10dp">
 
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:layout_margin="12dp"
-                    android:gravity="center"
-                    android:text="@string/scrambling_id"
-                    android:textColor="@color/black" />
-
-                <EditText
-                    android:id="@+id/scrambling_id"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/et_bg"
-                    android:hint="@string/input"
-                    android:paddingHorizontal="12dp"
-                    android:textColor="@color/black"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    android:layout_toStartOf="@+id/scram_id_select"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="@string/scrambling_id"
+                        android:textColor="@color/black" />
+
+                    <EditText
+                        android:id="@+id/scrambling_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/scram_id_select"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="center"
+                    android:src="@drawable/arrow_down" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

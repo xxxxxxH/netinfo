@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
@@ -27,7 +29,7 @@ import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.dialog.LoadingDialog;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.fragment.RoomInfoFragment;
-import com.xxxxxxH.netinfo.fragment.ScramblingFragment;
+import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
 import com.xxxxxxH.netinfo.sendmain.UsefulSTMP;
 import com.xxxxxxH.netinfo.utils.Constant;
@@ -61,7 +63,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public TextView save;
 
     private RoomInfoFragment roomFg;
-    private ScramblingFragment scramFg;
+    //    private ScramblingFragment scramFg;
+    private ScramblingNewFragment scramNewFg;
     private final static String[] MULTI_PERMISSIONS =
             new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION};
@@ -91,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     delCache(roomFg.getKey());
                     roomFg.removeCustomItem();
                     roomFg.clearRoomInfo();
-                    scramFg.removeCustomItem();
-                    scramFg.clearScramblingInfo();
                     Toast.makeText(MainActivity.this, "发送邮件成功", Toast.LENGTH_SHORT).show();
                     break;
                 case -1:
@@ -124,15 +125,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initFg() {
-        roomFg = new RoomInfoFragment();
-        scramFg = new ScramblingFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
+        showPosition(0);
         Constant.imgList = new ArrayList<>();
         Constant.itemList = new ArrayList<>();
         Constant.itemList2 = new ArrayList<>();
         Constant.customItem = new HashMap<>();
         Constant.customItem2 = new HashMap<>();
         Constant.Context = this;
+    }
+
+    private void showPosition(int position) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        hidAll(ft);
+        if (position == 0) {
+            roomFg = (RoomInfoFragment) fm.findFragmentByTag("roomFg");
+            if (roomFg == null) {
+                roomFg = new RoomInfoFragment();
+                ft.add(R.id.content, roomFg, "roomFg");
+            } else {
+                ft.show(roomFg);
+            }
+        } else if (position == 1) {
+            scramNewFg = (ScramblingNewFragment) fm.findFragmentByTag("scramNewFg");
+            if (scramNewFg == null) {
+                scramNewFg = new ScramblingNewFragment();
+                ft.add(R.id.content, scramNewFg, "scramNewFg");
+            } else {
+                ft.show(scramNewFg);
+            }
+        }
+        ft.commit();
+    }
+
+    private void hidAll(FragmentTransaction ft) {
+        if (roomFg != null) {
+            ft.hide(roomFg);
+        }
+        if (scramNewFg != null) {
+            ft.hide(scramNewFg);
+        }
     }
 
     public void requestPermissions() {
@@ -167,21 +199,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (Constant.imgList.size() == 0) {
-            Constant.imgList.addAll(roomFg.getImgList());
-        }
         switch (id) {
             case R.id.tv_room:
-                getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
                 room.setTextColor(Color.RED);
                 scram.setTextColor(Color.BLACK);
-                Constant.ADD = false;
+                showPosition(0);
                 break;
             case R.id.tv_scram:
-                getSupportFragmentManager().beginTransaction().replace(R.id.content, scramFg).commitAllowingStateLoss();
                 room.setTextColor(Color.BLACK);
                 scram.setTextColor(Color.RED);
-                Constant.ADD = false;
+                showPosition(1);
                 break;
             case R.id.tv_submit:
                 if (TextUtils.isEmpty(roomFg.getKey())) {
@@ -217,34 +244,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.tv_add:
-                getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
+                showPosition(0);
                 room.setTextColor(Color.RED);
                 scram.setTextColor(Color.BLACK);
                 roomFg.removeCustomItem();
                 roomFg.clearRoomInfo();
-                scramFg.clearScramblingInfo();
-                scramFg.removeCustomItem();
+                if (scramNewFg != null) {
+                    scramNewFg.removeCustomItem();
+                    scramNewFg.clearScramblingInfo();
+                }
                 saveDataInfo();
                 Constant.ADD = true;
                 break;
             case R.id.tv_del:
                 Constant.ADD = true;
-                getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
+                showPosition(0);
                 room.setTextColor(Color.RED);
                 scram.setTextColor(Color.BLACK);
-                Constant.customItem.clear();
+
                 delCache(roomFg.getKey());
                 roomFg.removeCustomItem();
                 roomFg.clearRoomInfo();
-                scramFg.removeCustomItem();
-                scramFg.clearScramblingInfo();
+                Constant.customItem.clear();
+                if (scramNewFg != null) {
+                    scramNewFg.removeCustomItem();
+                    scramNewFg.clearScramblingInfo();
+                    Constant.customItem2.clear();
+                }
                 Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.tv_save:
-                if (TextUtils.isEmpty(roomFg.getKey())) {
-                    Toast.makeText(this, "保存了一堆空气", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 saveDataInfo();
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
                 break;
@@ -261,24 +290,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void saveDataInfo() {
         DataEntity entity = mainContent();
-        MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
-        saveKey(roomFg.getKey());
+        if (!TextUtils.isEmpty(roomFg.getKey())) {
+            MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
+            saveKey(roomFg.getKey());
+        }
+        if (scramNewFg != null) {
+            MMKV.defaultMMKV().encode(scramNewFg.getKey(), entity);
+            saveKey2(scramNewFg.getKey());
+        }
     }
 
     private DataEntity mainContent() {
         DataEntity entity = null;
-        entity = MMKV.defaultMMKV().decodeParcelable(roomFg.getKey(), DataEntity.class);
-        if (entity == null) {
-            DataEntity roomInfo = roomFg.getRoomInfo();
-            DataEntity scramblingInfo = scramFg.getScramblingInfo();
-            entity = new DataEntity(roomInfo.getRoomName(), roomInfo.getRoomLoc(),
-                    roomInfo.getNetName(), roomInfo.getBoardName(), roomInfo.getPortName(),
-                    roomInfo.getFiberName(), scramblingInfo.getScramblingId(),
-                    scramblingInfo.getChildName(), scramblingInfo.getStartTime(),
-                    scramblingInfo.getEndTime(), scramblingInfo.getScramblingRate(),
-                    scramblingInfo.getScramblingCode(), scramblingInfo.getScramblingLoc(),
-                    Constant.customItem, Constant.customItem2, roomInfo.getImgList());
+//        entity = MMKV.defaultMMKV().decodeParcelable(roomFg.getKey(), DataEntity.class);
+//        if (entity == null) {
+        DataEntity roomInfo = roomFg.getRoomInfo();
+        DataEntity scramData = null;
+        if (scramNewFg != null) {
+            scramData = scramNewFg.getScramblingInfo();
         }
+        entity = new DataEntity(roomInfo.getRoomName(), roomInfo.getRoomLoc(),
+                roomInfo.getNetName(), roomInfo.getBoardName(), roomInfo.getPortName(),
+                roomInfo.getFiberName(), scramData != null ? scramData.getScramblingId() : "",
+                scramData != null ? scramData.getChildName() : "", scramData != null ?
+                scramData.getStartTime() : "", scramData != null ? scramData.getEndTime() : "",
+                scramData != null ? scramData.getScramblingRate() : "", scramData != null ?
+                scramData.getScramblingCode() : "", scramData != null ?
+                scramData.getScramblingLoc() : "", Constant.customItem, Constant.customItem2,
+                roomInfo.getImgList());
+//        }
         if (Constant.customItem != null && Constant.customItem.size() > 0) {
             entity.setCustomRoom(Constant.customItem);
         }
@@ -312,7 +352,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (roomFg.nameAdapter != null) {
             roomFg.nameAdapter.updateData(new ArrayList<>(key));
         }
+    }
 
+    private void saveKey2(String value) {
+        if (scramNewFg == null) {
+            return;
+        }
+        Set<String> key = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_SCRAM_ID);
+        if (key == null) {
+            key = new HashSet<>();
+        }
+        key.add(value);
+        MMKV.defaultMMKV().encode(Constant.KEY_SCRAM_ID, key);
+        if (scramNewFg.adapter != null) {
+            scramNewFg.adapter.updateData(new ArrayList<>(key));
+        }
     }
 
     private void delCache(String key) {
@@ -337,25 +391,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return getRoomInfo(roomFg.getKey());
     }
 
-    public void setScramViewData(DataEntity entity) {
-        scramFg.setViewData(entity);
-    }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         MMKV.defaultMMKV().remove(Constant.Longitude);
         MMKV.defaultMMKV().remove(Constant.Latitude);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-//        MMKV.defaultMMKV().clearAll();
-    }
-
-    private void loadingView() {
-
     }
 }

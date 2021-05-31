@@ -54,7 +54,8 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class RoomInfoFragment extends Fragment implements View.OnClickListener, OnItemClickListener {
+public class RoomInfoFragment extends Fragment implements View.OnClickListener,
+        OnItemClickListener {
 
     @BindView(R.id.room_loc_tv)
     TextView roomLoc;
@@ -107,7 +108,8 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.layout_fragment_room, container, false);
     }
@@ -125,7 +127,8 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
 
         adapter = new RoomInfoImgAdapter(getActivity(), null);
         adapter.setOnItemClickListener(this);
-        LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
 
@@ -149,7 +152,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
             case R.id.room_img_loc:
                 curLongitude = 0.0;
                 curLatitude = 0.0;
-                Toast.makeText(Constant.Context,"刷新成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.net_img_add:
                 if (roomDialog == null) {
@@ -199,7 +202,8 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
                         CustomItem item = new CustomItem(getActivity());
                         item.setName(fieldName.getText().toString());
                         item.setContent(fieldContent.getText().toString());
-                        Constant.customItem.put(fieldName.getText().toString(), fieldContent.getText().toString());
+                        Constant.customItem.put(fieldName.getText().toString(),
+                                fieldContent.getText().toString());
                         rootView.addView(item);
                         rootView.invalidate();
                         Constant.itemList.add(item);
@@ -225,9 +229,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
     private Dialog roomNameDialog() {
         Dialog dialog = null;
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_room, null);
-        dialog = new AlertDialog.Builder(getActivity())
-                .setView(view)
-                .create();
+        dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
         view.findViewById(R.id.btn_new).setOnClickListener(this);
         view.findViewById(R.id.btn_edit).setOnClickListener(this);
         return dialog;
@@ -236,9 +238,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
     private Dialog imgDialog() {
         Dialog dialog = null;
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_img, null);
-        dialog = new AlertDialog.Builder(getActivity())
-                .setView(view)
-                .create();
+        dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
         view.findViewById(R.id.photo).setOnClickListener(this);
         view.findViewById(R.id.camera).setOnClickListener(this);
         return dialog;
@@ -246,10 +246,9 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
 
     private Dialog customDialog() {
         Dialog dialog = null;
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_custom_item, null);
-        dialog = new AlertDialog.Builder(getActivity())
-                .setView(view)
-                .create();
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_custom_item
+                , null);
+        dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
         view.findViewById(R.id.dialog_cancel).setOnClickListener(this);
         view.findViewById(R.id.dialog_confirm).setOnClickListener(this);
         fieldName = view.findViewById(R.id.field_name);
@@ -260,9 +259,7 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
     private Dialog roomDialog(Set<String> data) {
         Dialog dialog = null;
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_name, null);
-        dialog = new AlertDialog.Builder(getActivity())
-                .setView(view)
-                .create();
+        dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
         RecyclerView recyclerView = view.findViewById(R.id.dialog_recycler);
         nameAdapter = new RoomNameAdapter(new ArrayList<>(data));
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
@@ -277,65 +274,8 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
                                  @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == getActivity().RESULT_OK) {
-            switch (requestCode) {
-                case PictureConfig.CHOOSE_REQUEST:
-                    // 结果回调
-                    List<LocalMedia> albumList = PictureSelector.obtainMultipleResult(data);
-                    getImgPath(albumList);
-                    adapter.updateData(Constant.imgList);
-                    break;
-                case PictureConfig.REQUEST_CAMERA:
-                    // 结果回调
-                    List<LocalMedia> cameraList = PictureSelector.obtainMultipleResult(data);
-                    getImgPath(cameraList);
-                    adapter.updateData(Constant.imgList);
-                    break;
-                default:
-                    break;
-            }
+            adapter.updateData(handle(PictureSelector.obtainMultipleResult(data)));
         }
-    }
-
-    public void getLocation() {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getActivity(), "请打开gps定位", Toast.LENGTH_LONG).show();
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new MyLocationListener());
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new MyLocationListener());
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onStart() {
-        super.onStart();
-        roomLoc.setText(FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)) +
-                " , " + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)));
-        adapter.updateData(Constant.imgList);
-        if (Constant.customItem != null && Constant.customItem.size() > 0) {
-            for (String key : Constant.customItem.keySet()) {
-                CustomItem item = new CustomItem(getActivity());
-                item.setName(key);
-                item.setContent(Constant.customItem.get(key));
-                rootView.addView(item);
-                Constant.itemList.add(item);
-            }
-            rootView.invalidate();
-        }
-        if (Constant.ADD){
-            removeCustomItem();
-            clearRoomInfo();
-        }
-
     }
 
 
@@ -346,12 +286,11 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
         } else {
             String key = nameAdapter.getData().get(position);
             DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
-            if (entity == null || entity.getImgList().size() == 0) {
+            if (entity == null || entity.getImgList() == null|| entity.getImgList().size() == 0) {
                 Constant.imgList.clear();
             }
             if (entity != null) {
                 setViewData(entity);
-                ((MainActivity) getActivity()).setScramViewData(entity);
             }
             if (roomNameDlg != null && roomNameDlg.isShowing()) {
                 roomNameDlg.dismiss();
@@ -359,51 +298,13 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-    class MyLocationListener implements LocationListener {
-
-        @Override
-        public void onProviderEnabled(@NonNull String provider) {
-            Log.i("TAG", "GPS Enabled");
-            Toast.makeText(getActivity(), "GPS 不可用 请打开GPS", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onProviderDisabled(@NonNull String provider) {
-            Log.i("TAG", "GPS Disabled");
-        }
-
-        @Override
-        public void onLocationChanged(@NonNull Location location) {
-            if (curLongitude == 0.0 && curLatitude == 0.0) {
-                curLongitude = location.getLongitude();
-                curLatitude = location.getLatitude();
-                roomLoc.setText(FormatUtils.formatDouble(curLongitude) + " , " + FormatUtils.formatDouble(curLatitude));
-                MMKV.defaultMMKV().encode(Constant.Longitude, curLongitude);
-                MMKV.defaultMMKV().encode(Constant.Latitude, curLatitude);
-            }
-            Log.i("TAG", "当前经度 = " + location.getLongitude());
-            Log.i("TAG", "当前纬度 = " + location.getLatitude());
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-    }
-
 
     private void openCameraV2() {
-        PictureSelector.create(this)
-                .openCamera(PictureMimeType.ofImage())
-                .imageEngine(GlideEngine.createGlideEngine())
-                .forResult(PictureConfig.REQUEST_CAMERA);
+        PictureSelector.create(this).openCamera(PictureMimeType.ofImage()).imageEngine(GlideEngine.createGlideEngine()).forResult(PictureConfig.REQUEST_CAMERA);
     }
 
     private void setOpenAlbumV2() {
-        PictureSelector.create(this)
-                .openGallery(PictureMimeType.ofImage())
-                .imageEngine(GlideEngine.createGlideEngine())
-                .forResult(PictureConfig.CHOOSE_REQUEST);
+        PictureSelector.create(this).openGallery(PictureMimeType.ofImage()).imageEngine(GlideEngine.createGlideEngine()).forResult(PictureConfig.CHOOSE_REQUEST);
     }
 
     private void getImgPath(List<LocalMedia> list) {
@@ -412,18 +313,32 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
+    private ArrayList<String> handle(List<LocalMedia> list) {
+        ArrayList<String> result = new ArrayList<>();
+        for (LocalMedia item : list) {
+            result.add(item.getRealPath());
+        }
+        return result;
+    }
+
     public ArrayList<String> getImgList() {
         return adapter.getData();
     }
 
     public DataEntity getRoomInfo() {
         DataEntity entity = new DataEntity();
-        entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" : roomName.getText().toString());
-        entity.setRoomLoc(TextUtils.isEmpty(roomLoc.getText().toString()) ? "" : roomLoc.getText().toString());
-        entity.setNetName(TextUtils.isEmpty(netName.getText().toString()) ? "" : netName.getText().toString());
-        entity.setBoardName(TextUtils.isEmpty(boardName.getText().toString()) ? "" : boardName.getText().toString());
-        entity.setPortName(TextUtils.isEmpty(portName.getText().toString()) ? "" : portName.getText().toString());
-        entity.setFiberName(TextUtils.isEmpty(fiberName.getText().toString()) ? "" : fiberName.getText().toString());
+        entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" :
+                roomName.getText().toString());
+        entity.setRoomLoc(TextUtils.isEmpty(roomLoc.getText().toString()) ? "" :
+                roomLoc.getText().toString());
+        entity.setNetName(TextUtils.isEmpty(netName.getText().toString()) ? "" :
+                netName.getText().toString());
+        entity.setBoardName(TextUtils.isEmpty(boardName.getText().toString()) ? "" :
+                boardName.getText().toString());
+        entity.setPortName(TextUtils.isEmpty(portName.getText().toString()) ? "" :
+                portName.getText().toString());
+        entity.setFiberName(TextUtils.isEmpty(fiberName.getText().toString()) ? "" :
+                fiberName.getText().toString());
         entity.setImgList(adapter.getData());
         return entity;
     }
@@ -494,5 +409,51 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener, 
             return "";
         }
         return roomName.getText().toString();
+    }
+
+    public void getLocation() {
+        locationManager =
+                (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getActivity(), "请打开gps定位", Toast.LENGTH_LONG).show();
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+                new MyLocationListener());
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
+                new MyLocationListener());
+    }
+
+    class MyLocationListener implements LocationListener {
+
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
+            Log.i("TAG", "GPS Enabled");
+            Toast.makeText(getActivity(), "GPS 不可用 请打开GPS", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onProviderDisabled(@NonNull String provider) {
+            Log.i("TAG", "GPS Disabled");
+        }
+
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            if (curLongitude == 0.0 && curLatitude == 0.0) {
+                curLongitude = location.getLongitude();
+                curLatitude = location.getLatitude();
+                roomLoc.setText(FormatUtils.formatDouble(curLongitude) + " , " + FormatUtils.formatDouble(curLatitude));
+                MMKV.defaultMMKV().encode(Constant.Longitude, curLongitude);
+                MMKV.defaultMMKV().encode(Constant.Latitude, curLatitude);
+            }
+            Log.i("TAG", "当前经度 = " + location.getLongitude());
+            Log.i("TAG", "当前纬度 = " + location.getLatitude());
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
     }
 }
