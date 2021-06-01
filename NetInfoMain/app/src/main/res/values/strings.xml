@@ -5,7 +5,7 @@
     <string name="save">保存</string>
     <string name="submit">提交</string>
     <string name="room_name">机房名称</string>
-    <string name="room_loc">机房坐标</string>
+    <string name="room_loc">网元坐标</string>
     <string name="net_name">网元名称</string>
     <string name="board_name">单板名称</string>
     <string name="port_name">端口名称</string>
@@ -19,7 +19,8 @@
     <string name="scrambling_code">加扰码型</string>
     <string name="scrambling_loc">经纬度</string>
     <string name="child_net_name">子网名</string>
-    <string name="room_info_input">机房信息录入</string>
+    <string name="room_info_input">网元信息录入</string>
     <string name="scrambling_info_input">加扰信息录入</string>
     <string name="input">请输入</string>
+    <string name="net_details">网元详细信息</string>
 </resources>

@@ -29,6 +29,7 @@ import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.dialog.LoadingDialog;
 import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.fragment.NetElementFragment;
 import com.xxxxxxH.netinfo.fragment.RoomInfoFragment;
 import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RoomInfoFragment roomFg;
     //    private ScramblingFragment scramFg;
     private ScramblingNewFragment scramNewFg;
+    private NetElementFragment netFg;
     private final static String[] MULTI_PERMISSIONS =
             new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION};
@@ -146,12 +148,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentTransaction ft = fm.beginTransaction();
         hidAll(ft);
         if (position == 0) {
-            roomFg = (RoomInfoFragment) fm.findFragmentByTag("roomFg");
-            if (roomFg == null) {
-                roomFg = new RoomInfoFragment();
-                ft.add(R.id.content, roomFg, "roomFg");
+            netFg = (NetElementFragment) fm.findFragmentByTag("netFg");
+            if (netFg == null) {
+                netFg = new NetElementFragment();
+                ft.add(R.id.content, netFg, "roomFg");
             } else {
-                ft.show(roomFg);
+                ft.show(netFg);
             }
         } else if (position == 1) {
             scramNewFg = (ScramblingNewFragment) fm.findFragmentByTag("scramNewFg");
