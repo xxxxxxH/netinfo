@@ -199,6 +199,10 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener,
                     if (TextUtils.isEmpty(fieldName.getText().toString()) || TextUtils.isEmpty(fieldContent.getText().toString())) {
                         Toast.makeText(getActivity(), "请完整信息", Toast.LENGTH_LONG).show();
                     } else {
+                        if (isHasEqualField(fieldName.getText().toString())){
+                            Toast.makeText(Constant.Context,"已有相同字段存在",Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         CustomItem item = new CustomItem(getActivity());
                         item.setName(fieldName.getText().toString());
                         item.setContent(fieldContent.getText().toString());
@@ -409,6 +413,31 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener,
             return "";
         }
         return roomName.getText().toString();
+    }
+
+    public HashMap<String,String> getCustomItemData(){
+        HashMap<String,String> data = new HashMap<>();
+        if (rootView.getChildCount() > 6){
+            for (int i = 7;i<=rootView.getChildCount() - 1;i++){
+                CustomItem item = (CustomItem) rootView.getChildAt(i);
+                data.put(item.getName(),item.getContent());
+            }
+        }
+        return data;
+    }
+
+    public boolean isHasEqualField(String field){
+        boolean result = false;
+        if (rootView.getChildCount() > 6){
+            for (int i = 7;i<=rootView.getChildCount() - 1;i++){
+                CustomItem item = (CustomItem) rootView.getChildAt(i);
+                if (TextUtils.equals(item.getName(),field)){
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     public void getLocation() {

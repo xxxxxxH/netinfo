@@ -163,10 +163,10 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        switch (id){
+        switch (id) {
             case R.id.scram_id_select:
                 Set<String> data = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_SCRAM_ID);
-                if (data == null) {
+                if (data == null || data.size() == 0) {
                     Toast.makeText(getActivity(), "暂无保存数据", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -202,6 +202,10 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                     if (TextUtils.isEmpty(fieldName.getText().toString()) || TextUtils.isEmpty(fieldContent.getText().toString())) {
                         Toast.makeText(getActivity(), "请完整信息", Toast.LENGTH_LONG).show();
                     } else {
+                        if (isHasEqualField(fieldName.getText().toString())) {
+                            Toast.makeText(Constant.Context, "已有相同字段存在", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         CustomItem item = new CustomItem(getActivity());
                         item.setName(fieldName.getText().toString());
                         item.setContent(fieldContent.getText().toString());
@@ -304,16 +308,10 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
 
     public void clearScramblingInfo() {
         if (id != null) {
-            id.setText("");
+            id.setText(System.currentTimeMillis() + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)).replace(".", "") + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)).replace(".", ""));
         }
         if (childName != null) {
             childName.setText("");
-        }
-        if (start != null) {
-            start.setText("");
-        }
-        if (end != null) {
-            end.setText("");
         }
         if (rate != null) {
             rate.setText("");
@@ -335,6 +333,31 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         }
     }
 
+    public HashMap<String, String> getCustomItemData() {
+        HashMap<String, String> data = new HashMap<>();
+        if (rootView.getChildCount() > 6) {
+            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
+                CustomItem item = (CustomItem) rootView.getChildAt(i);
+                data.put(item.getName(), item.getContent());
+            }
+        }
+        return data;
+    }
+
+    public boolean isHasEqualField(String field) {
+        boolean result = false;
+        if (rootView.getChildCount() > 6) {
+            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
+                CustomItem item = (CustomItem) rootView.getChildAt(i);
+                if (TextUtils.equals(item.getName(), field)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
     public void getLocation() {
         locationManager =
                 (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -349,13 +372,12 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 new ScramblingNewFragment.MyLocationListener());
     }
 
-    public String getKey(){
-        if (id == null){
+    public String getKey() {
+        if (id == null) {
             return "";
         }
         return id.getText().toString();
     }
-
 
 
     class MyLocationListener implements LocationListener {

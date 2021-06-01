@@ -1,6 +1,7 @@
 package com.xxxxxxH.netinfo.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -34,7 +35,6 @@ import com.xxxxxxH.netinfo.sendmain.EmailUtil;
 import com.xxxxxxH.netinfo.sendmain.UsefulSTMP;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.ZipUtils;
-import com.xxxxxxH.netinfo.widget.CustomItem;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -79,21 +79,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final double curLatitude = 0;
     private LoadingDialog loadingDialog;
 
+    @SuppressLint("HandlerLeak")
     public Handler mHandler = new Handler() {
+
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             if (loadingDialog != null && loadingDialog.isShowing()) loadingDialog.dismiss();
             switch (msg.what) {
                 case 1:
-                    Constant.ADD = true;
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content, roomFg).commitAllowingStateLoss();
+                    showPosition(0);
                     room.setTextColor(Color.RED);
                     scram.setTextColor(Color.BLACK);
-                    Constant.customItem.clear();
                     delCache(roomFg.getKey());
                     roomFg.removeCustomItem();
                     roomFg.clearRoomInfo();
+                    Constant.customItem.clear();
+                    if (scramNewFg != null) {
+                        delCache2(scramNewFg.getKey());
+                        scramNewFg.removeCustomItem();
+                        scramNewFg.clearScramblingInfo();
+                        Constant.customItem2.clear();
+                    }
                     Toast.makeText(MainActivity.this, "发送邮件成功", Toast.LENGTH_SHORT).show();
                     break;
                 case -1:
@@ -217,25 +224,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 loadingDialog = new LoadingDialog(MainActivity.this);
                 loadingDialog.show();
-                Log.i("TAG", "开始压缩");
-                boolean result = false;
-                String zipPath = Environment.getExternalStorageDirectory() + File.separator +
-                        "test.zip";
-                try {
-                    result = ZipUtils.zipFiles(Constant.imgList, zipPath);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i("TAG", "压缩出错");
+                ArrayList<String> files = new ArrayList<>();
+                if (roomFg != null && roomFg.adapter != null && roomFg.adapter.getData() != null && roomFg.adapter.getData().size() > 0) {
+                    Log.i("TAG", "开始压缩");
+                    boolean result = false;
+                    String zipPath = Environment.getExternalStorageDirectory() + File.separator +
+                            "test.zip";
+                    try {
+                        result = ZipUtils.zipFiles(roomFg.getImgList(), zipPath);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.i("TAG", "压缩出错");
+                    }
+                    Log.i("TAG", "压缩结束 result = " + result);
+                    if (result) {
+                        files.add(zipPath);
+                    }
                 }
-                Log.i("TAG", "压缩结束 result = " + result);
-                DataEntity entity = mainContent();
+
+                DataEntity entity = submit();
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         boolean result = EmailUtil.autoSendMail(roomFg.getKey(),
                                 new Gson().toJson(entity), Constant.TO, UsefulSTMP.QQ,
-                                Constant.FROM, Constant.pwd, new String[]{zipPath});
+                                Constant.FROM, Constant.pwd, files.size() > 0 ? files.toArray(new String[]{}) : null);
                         Message msg = new Message();
                         msg.what = result ? 1 : -1;
                         mHandler.sendMessage(msg);
@@ -244,99 +258,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.tv_add:
-                showPosition(0);
-                room.setTextColor(Color.RED);
-                scram.setTextColor(Color.BLACK);
-                roomFg.removeCustomItem();
-                roomFg.clearRoomInfo();
-                if (scramNewFg != null) {
-                    scramNewFg.removeCustomItem();
-                    scramNewFg.clearScramblingInfo();
-                }
-                saveDataInfo();
-                Constant.ADD = true;
+                add();
                 break;
             case R.id.tv_del:
-                Constant.ADD = true;
-                showPosition(0);
-                room.setTextColor(Color.RED);
-                scram.setTextColor(Color.BLACK);
-
-                delCache(roomFg.getKey());
-                roomFg.removeCustomItem();
-                roomFg.clearRoomInfo();
-                Constant.customItem.clear();
-                if (scramNewFg != null) {
-                    scramNewFg.removeCustomItem();
-                    scramNewFg.clearScramblingInfo();
-                    Constant.customItem2.clear();
-                }
+                delete();
                 Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.tv_save:
-                saveDataInfo();
+                save();
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
-    private void addDataInfo() {
-        roomFg.clearRoomInfo();
-    }
-
-    private void delDataInfo() {
-        roomFg.clearRoomInfo();
-    }
-
-    private void saveDataInfo() {
-        DataEntity entity = mainContent();
-        if (!TextUtils.isEmpty(roomFg.getKey())) {
-            MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
-            saveKey(roomFg.getKey());
-        }
-        if (scramNewFg != null) {
-            MMKV.defaultMMKV().encode(scramNewFg.getKey(), entity);
-            saveKey2(scramNewFg.getKey());
-        }
-    }
-
-    private DataEntity mainContent() {
-        DataEntity entity = null;
-//        entity = MMKV.defaultMMKV().decodeParcelable(roomFg.getKey(), DataEntity.class);
-//        if (entity == null) {
-        DataEntity roomInfo = roomFg.getRoomInfo();
-        DataEntity scramData = null;
-        if (scramNewFg != null) {
-            scramData = scramNewFg.getScramblingInfo();
-        }
-        entity = new DataEntity(roomInfo.getRoomName(), roomInfo.getRoomLoc(),
-                roomInfo.getNetName(), roomInfo.getBoardName(), roomInfo.getPortName(),
-                roomInfo.getFiberName(), scramData != null ? scramData.getScramblingId() : "",
-                scramData != null ? scramData.getChildName() : "", scramData != null ?
-                scramData.getStartTime() : "", scramData != null ? scramData.getEndTime() : "",
-                scramData != null ? scramData.getScramblingRate() : "", scramData != null ?
-                scramData.getScramblingCode() : "", scramData != null ?
-                scramData.getScramblingLoc() : "", Constant.customItem, Constant.customItem2,
-                roomInfo.getImgList());
-//        }
-        if (Constant.customItem != null && Constant.customItem.size() > 0) {
-            entity.setCustomRoom(Constant.customItem);
-        }
-        if (Constant.customItem2 != null && Constant.customItem2.size() > 0) {
-            entity.setCustomScrambling(Constant.customItem2);
-        }
-        return entity;
-    }
-
-    private HashMap<String, String> addCustomItemInfo() {
-        HashMap<String, String> customField = new HashMap<>();
-        if (Constant.itemList != null && Constant.itemList.size() > 0) {
-            for (CustomItem item : Constant.itemList) {
-                customField.put(item.getName(), item.getContent());
-            }
-        }
-        return customField;
-    }
 
     private void saveKey(String newValue) {
         if (TextUtils.isEmpty(newValue)) {
@@ -383,6 +317,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void delCache2(String key) {
+        if (!TextUtils.isEmpty(scramNewFg.getKey())) {
+            MMKV.defaultMMKV().remove(key);
+            Set<String> keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_SCRAM_ID);
+            if (keySet != null) {
+                keySet.remove(key);
+            }
+            MMKV.defaultMMKV().encode(Constant.KEY_SCRAM_ID, keySet);
+            if (scramNewFg.adapter != null) {
+                scramNewFg.adapter.updateData(new ArrayList<>(keySet));
+            }
+        }
+    }
+
     public DataEntity getRoomInfo(String key) {
         return MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
     }
@@ -397,5 +345,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         MMKV.defaultMMKV().remove(Constant.Longitude);
         MMKV.defaultMMKV().remove(Constant.Latitude);
+    }
+
+
+    //新增
+    private void add() {
+        if (roomFg != null && roomFg.isVisible()) {
+            roomFg.removeCustomItem();
+            roomFg.clearRoomInfo();
+            Constant.customItem.clear();
+        }
+        if (scramNewFg != null && scramNewFg.isVisible()) {
+            scramNewFg.removeCustomItem();
+            scramNewFg.clearScramblingInfo();
+            Constant.customItem2.clear();
+        }
+    }
+
+    //删除
+    private void delete() {
+        if (roomFg != null && roomFg.isVisible()) {
+            delCache(roomFg.getKey());
+            roomFg.removeCustomItem();
+            roomFg.clearRoomInfo();
+            Constant.customItem.clear();
+        } else if (scramNewFg != null && scramNewFg.isVisible()) {
+            delCache2(scramNewFg.getKey());
+            scramNewFg.removeCustomItem();
+            scramNewFg.clearScramblingInfo();
+            Constant.customItem2.clear();
+        }
+    }
+
+    //保存
+    private void save() {
+        if (roomFg != null && roomFg.isVisible()) {
+            DataEntity roomInfo = roomFg.getRoomInfo();
+            DataEntity entity = new DataEntity(roomInfo.getRoomName(),
+                    roomInfo.getRoomLoc(),
+                    roomInfo.getNetName(),
+                    roomInfo.getBoardName(),
+                    roomInfo.getPortName(),
+                    roomInfo.getFiberName(),
+                    "", "", "", "", "", "", "",
+                    roomFg.getCustomItemData(), new HashMap<>(), roomInfo.getImgList());
+            MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
+            saveKey(roomFg.getKey());
+        } else if (scramNewFg != null && scramNewFg.isVisible()) {
+            DataEntity info = scramNewFg.getScramblingInfo();
+            DataEntity entity = new DataEntity("", "", "", "", "", "",
+                    info.getScramblingId(),
+                    info.getChildName(),
+                    info.getStartTime(),
+                    info.getEndTime(),
+                    info.getScramblingRate(),
+                    info.getScramblingCode(),
+                    info.getScramblingLoc(),
+                    new HashMap<>(),
+                    scramNewFg.getCustomItemData(),
+                    new ArrayList<>());
+            MMKV.defaultMMKV().encode(scramNewFg.getKey(), entity);
+            saveKey2(scramNewFg.getKey());
+        }
+    }
+
+    //提交
+    private DataEntity submit() {
+        DataEntity roomInfo = null;
+        DataEntity info = null;
+        if (roomFg != null) {
+            roomInfo = roomFg.getRoomInfo();
+        }
+        if (scramNewFg != null) {
+            info = scramNewFg.getScramblingInfo();
+        }
+
+        DataEntity entity = new DataEntity(roomInfo != null ? roomInfo.getRoomName() : "",
+                roomInfo != null ? roomInfo.getRoomLoc() : "",
+                roomInfo != null ? roomInfo.getNetName() : "",
+                roomInfo != null ? roomInfo.getBoardName() : "",
+                roomInfo != null ? roomInfo.getPortName() : "",
+                roomInfo != null ? roomInfo.getFiberName() : "",
+                info != null ? info.getScramblingId() : "",
+                info != null ? info.getChildName() : "",
+                info != null ? info.getStartTime() : "",
+                info != null ? info.getEndTime() : "",
+                info != null ? info.getScramblingRate() : "",
+                info != null ? info.getScramblingCode() : "",
+                info != null ? info.getScramblingLoc() : "",
+                roomFg != null ? roomFg.getCustomItemData() : new HashMap<>(),
+                scramNewFg != null ? scramNewFg.getCustomItemData() : new HashMap<>(),
+                roomFg != null ? roomInfo.getImgList() : new ArrayList<>());
+
+        return entity;
     }
 }
