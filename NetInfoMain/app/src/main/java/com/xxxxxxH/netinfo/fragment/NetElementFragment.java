@@ -540,6 +540,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public void setViewData(DataEntity entity) {
         if (netName != null) {
+            removeCustomItem();
+            netInfoAdapter.updateData(new ArrayList<>());
+            adapter.updateData(new ArrayList<>());
             netName.setText(entity.getNetName());
             netLoc.setText(entity.getRoomLoc());
             roomName.setText(entity.getRoomName());

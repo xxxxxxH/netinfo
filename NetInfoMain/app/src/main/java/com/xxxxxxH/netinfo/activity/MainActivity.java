@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             netFg = (NetElementFragment) fm.findFragmentByTag("netFg");
             if (netFg == null) {
                 netFg = new NetElementFragment();
-                ft.add(R.id.content, netFg, "roomFg");
+                ft.add(R.id.content, netFg, "netFg");
             } else {
                 ft.show(netFg);
             }
