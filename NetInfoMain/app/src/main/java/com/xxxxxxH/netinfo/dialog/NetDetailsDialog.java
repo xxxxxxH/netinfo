@@ -63,4 +63,8 @@ public class NetDetailsDialog extends Dialog {
     public void invalidate() {
         root.invalidate();
     }
+
+    public LinearLayout getRoot() {
+        return root;
+    }
 }

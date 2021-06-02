@@ -17,6 +17,7 @@ public class Constant {
     public static ArrayList<CustomItem> itemList2 = null;
     public static final String FLAG_IMG = "img";
     public static final String FLAG_NAME = "name";
+    public static final String FLAG_NET_INFO = "FLAG_NET_INFO";
     public static HashMap<String, String> customItem = null;
     public static HashMap<String, String> customItem2 = null;
     public static Context Context = null;

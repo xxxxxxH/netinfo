@@ -337,12 +337,6 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener,
                 roomLoc.getText().toString());
         entity.setNetName(TextUtils.isEmpty(netName.getText().toString()) ? "" :
                 netName.getText().toString());
-        entity.setBoardName(TextUtils.isEmpty(boardName.getText().toString()) ? "" :
-                boardName.getText().toString());
-        entity.setPortName(TextUtils.isEmpty(portName.getText().toString()) ? "" :
-                portName.getText().toString());
-        entity.setFiberName(TextUtils.isEmpty(fiberName.getText().toString()) ? "" :
-                fiberName.getText().toString());
         entity.setImgList(adapter.getData());
         return entity;
     }
@@ -374,9 +368,6 @@ public class RoomInfoFragment extends Fragment implements View.OnClickListener,
             roomName.setText(entity.getRoomName());
             roomLoc.setText(entity.getRoomLoc());
             netName.setText(entity.getNetName());
-            boardName.setText(entity.getBoardName());
-            portName.setText(entity.getPortName());
-            fiberName.setText(entity.getFiberName());
             adapter.updateData(entity.getImgList());
             if (entity.getCustomRoom() != null && entity.getCustomRoom().size() > 0) {
                 removeCustomItem();

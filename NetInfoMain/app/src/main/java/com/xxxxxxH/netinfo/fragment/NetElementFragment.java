@@ -34,19 +34,25 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.adapter.NetInfoAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.dialog.NetDetailsDialog;
+import com.xxxxxxH.netinfo.entity.BoardDetailsEntity;
+import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.NetDetailsBtnClickListener;
+import com.xxxxxxH.netinfo.utils.OnItemChildClickListener;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
 import com.xxxxxxH.netinfo.widget.CustomFiberItem;
 import com.xxxxxxH.netinfo.widget.CustomItem;
 import com.xxxxxxH.netinfo.widget.CustomNetItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +61,7 @@ import butterknife.ButterKnife;
 
 
 public class NetElementFragment extends Fragment implements View.OnClickListener,
-        OnItemClickListener, NetDetailsBtnClickListener {
+        OnItemClickListener, NetDetailsBtnClickListener, OnItemChildClickListener {
 
     @BindView(R.id.net_name_et)
     EditText netName;
@@ -94,11 +100,14 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     public static final int OPEN_ALBUM = 2;//声明一个请求码，用于识别返回的结果
     public RoomInfoImgAdapter adapter;
     public RoomNameAdapter nameAdapter;
+    public NetInfoAdapter netInfoAdapter;
 
     private EditText fieldName;
     private EditText fieldContent;
     private EditText boardNum;
     private EditText portNum;
+
+    private HashMap<String, List<BoardDetailsEntity>> map;
 
     public NetElementFragment() {
     }
@@ -117,9 +126,11 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         ButterKnife.bind(this, view);
         getLocation();
         initView();
+        iniAdapter();
     }
 
     private void initView() {
+        map = new HashMap<>();
         adapter = new RoomInfoImgAdapter(getActivity(), null);
         adapter.setOnItemClickListener(this);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
@@ -130,6 +141,16 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         nameSelect.setOnClickListener(this);
         imgAdd.setOnClickListener(this);
         customAdd.setOnClickListener(this);
+    }
+
+    private void iniAdapter() {
+        netInfoAdapter = new NetInfoAdapter(new ArrayList<>());
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
+        netRecyclerView.setLayoutManager(manager);
+        netRecyclerView.setAdapter(netInfoAdapter);
+        netInfoAdapter.setItemClickListener(this);
+        netInfoAdapter.setItemChildClickListener(this);
     }
 
     @Override
@@ -143,7 +164,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     private ArrayList<String> handle(List<LocalMedia> list) {
         ArrayList<String> result = new ArrayList<>();
-        if (adapter != null && adapter.getData() != null && adapter.getData().size()>0){
+        if (adapter != null && adapter.getData() != null && adapter.getData().size() > 0) {
             result = adapter.getData();
         }
         for (LocalMedia item : list) {
@@ -232,8 +253,11 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 detailsDialog = new NetDetailsDialog(getActivity());
                 detailsDialog.setListener(this);
                 detailsDialog.show();
+                if (netInfoAdapter.getData() != null && netInfoAdapter.getData().size() > 0){
+
+                }
                 addNetDetails(true, Integer.parseInt(boardNum.getText().toString()),
-                        Integer.parseInt(portNum.getText().toString()));
+                        Integer.parseInt(portNum.getText().toString()), map);
                 break;
         }
     }
@@ -297,19 +321,77 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         return dialog;
     }
 
-    private void addNetDetails(boolean isNew, int boardNum, int portNum) {
-        for (int i = 1; i < boardNum + 1; i++) {
-            CustomNetItem netItem = new CustomNetItem(getActivity());
-            netItem.setBoardName("单板名称" + i);
-            for (int j = 1; j < portNum + 1; j++) {
-                CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
-                fiberItem.setPortName("端口名称" + j);
-                fiberItem.setFiberName("光纤名称" + j);
-                netItem.addFiberItem(fiberItem);
+    private void addNetDetails(boolean isNew, int boardNum, int portNum, HashMap<String, List<BoardDetailsEntity>> data) {
+        if (isNew) {
+            for (int i = 1; i < boardNum + 1; i++) {
+                CustomNetItem netItem = new CustomNetItem(getActivity());
+                netItem.setBoardName("单板名称" + (netInfoAdapter.getData().size() + i));
+                for (int j = 1; j < portNum + 1; j++) {
+                    CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
+                    fiberItem.setPortName("端口名称" + j);
+                    fiberItem.setFiberName("光纤名称" + j);
+                    netItem.addFiberItem(fiberItem);
+                }
+                detailsDialog.addView(netItem);
             }
-            detailsDialog.addView(netItem);
+            detailsDialog.invalidate();
+        } else {
+            if (data == null || data.size() == 0) {
+                Toast.makeText(getActivity(), "map数据丢失", Toast.LENGTH_SHORT).show();
+            } else {
+                for (int i = 1; i < data.size() + 1; i++) {
+                    CustomNetItem netItem = new CustomNetItem(getActivity());
+                    String key = data.keySet().iterator().next();
+                    netItem.setBoardName(key);
+                    List<BoardDetailsEntity> list = data.get(key);
+                    netItem.setBoardContent(list.get(0).getBoardContent());
+                    for (int j = 0; j < list.size(); j++) {
+                        CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
+                        fiberItem.setPortName("端口名称" + (j + 1));
+                        fiberItem.setPortContent(list.get(j).getPortContent());
+                        fiberItem.setFiberName("光纤名称" + (j + 1));
+                        fiberItem.setFiberRxContent(list.get(j).getFiberRx());
+                        fiberItem.setFiberTxContent(list.get(j).getFiberTx());
+                        netItem.addFiberItem(fiberItem);
+                    }
+                    detailsDialog.addView(netItem);
+                }
+                detailsDialog.invalidate();
+            }
         }
-        detailsDialog.invalidate();
+
+    }
+
+    public HashMap<String, List<BoardDetailsEntity>> getNetDetails() {
+        HashMap<String, List<BoardDetailsEntity>> netDetails = new HashMap<>();
+        if (detailsDialog != null && detailsDialog.getRoot() != null) {
+            LinearLayout detailsRoot = detailsDialog.getRoot();
+            for (int i = 0; i < detailsRoot.getChildCount(); i++) {
+                List<BoardDetailsEntity> list = new ArrayList<>();
+                CustomNetItem netItem = (CustomNetItem) detailsRoot.getChildAt(i);
+                LinearLayout fiberRoot = netItem.getRoot();
+                for (int j = 0; fiberRoot != null && j < fiberRoot.getChildCount(); j++) {
+                    CustomFiberItem fiberItem = (CustomFiberItem) fiberRoot.getChildAt(j);
+                    BoardDetailsEntity entity = new BoardDetailsEntity(netItem.getBoardContent(), fiberItem.getPortName(), fiberItem.getPortContent(),
+                            fiberItem.getFiberName(), fiberItem.getFiberRxContent(), fiberItem.getFiberTxContent());
+                    list.add(entity);
+                }
+                netDetails.put(netItem.getBoardName(), list);
+            }
+        }
+        return netDetails;
+    }
+
+    public List<CustomNetItem> getBoardContent() {
+        List<CustomNetItem> list = new ArrayList<>();
+        if (detailsDialog != null && detailsDialog.getRoot() != null) {
+            LinearLayout detailsRoot = detailsDialog.getRoot();
+            for (int i = 0; i < detailsRoot.getChildCount(); i++) {
+                CustomNetItem netItem = (CustomNetItem) detailsRoot.getChildAt(i);
+                list.add(netItem);
+            }
+        }
+        return list;
     }
 
 
@@ -318,6 +400,32 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         if (TextUtils.equals(flag, Constant.FLAG_IMG)) {
             adapter.deleteItem(position);
         }
+        if (TextUtils.equals(flag, Constant.FLAG_NET_INFO)) {
+            detailsDialog = new NetDetailsDialog(getActivity());
+            detailsDialog.show();
+            detailsDialog.setListener(this);
+            String key = netInfoAdapter.getData().get(position);
+            HashMap<String, List<BoardDetailsEntity>> itemMap = new HashMap<>();
+            for (String s : map.keySet()){
+                List<BoardDetailsEntity> list = map.get(s);
+                for (BoardDetailsEntity entity : list){
+                    if (TextUtils.equals(key,entity.getBoardContent())){
+                        itemMap.put(s, list);
+                        break;
+                    }
+                }
+            }
+
+            addNetDetails(false, 0, 0, itemMap);
+        }
+    }
+
+
+    @Override
+    public void onItemChildClick(View view, int position, String flag) {
+        String key = netInfoAdapter.getData().get(position);
+        map.remove(key);
+        netInfoAdapter.deleteItem(position);
     }
 
     @Override
@@ -330,6 +438,39 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     @Override
     public void onConfirm() {
 
+        List<CustomNetItem> customNetItems = getBoardContent();
+        for (CustomNetItem item : customNetItems) {
+            if (TextUtils.equals(item.getBoardContent(), "")) {
+                Toast.makeText(getActivity(), "请填写单板名字", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
+        if (detailsDialog != null && detailsDialog.isShowing()) {
+            detailsDialog.dismiss();
+        }
+
+        HashMap<String, List<BoardDetailsEntity>> hashMap = getNetDetails();
+
+        for (String key : hashMap.keySet()) {
+            map.put(key, hashMap.get(key));
+        }
+
+        List<String> data = new ArrayList<>();
+//        if (netInfoAdapter != null && netInfoAdapter.getData() != null && netInfoAdapter.getData().size() > 0) {
+//            data = netInfoAdapter.getData();
+//        }
+        if (map != null) {
+            List<BoardDetailsEntity> list = new ArrayList<>();
+            Set<String> set = new HashSet<>();
+            for (String key : map.keySet()) {
+                list = map.get(key);
+                for (BoardDetailsEntity item : list) {
+                    set.add(item.getBoardContent());
+                }
+            }
+            netInfoAdapter.updateData(new ArrayList<>(set));
+        }
     }
 
     private void openCameraV2() {
@@ -338,6 +479,12 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     private void setOpenAlbumV2() {
         PictureSelector.create(this).openGallery(PictureMimeType.ofImage()).imageEngine(GlideEngine.createGlideEngine()).forResult(PictureConfig.CHOOSE_REQUEST);
+    }
+
+    public DataEntity getNetInfo() {
+        DataEntity entity = new DataEntity();
+
+        return entity;
     }
 
     public void getLocation() {

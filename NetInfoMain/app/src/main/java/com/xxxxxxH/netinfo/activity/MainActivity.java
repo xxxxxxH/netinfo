@@ -386,16 +386,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DataEntity entity = new DataEntity(roomInfo.getRoomName(),
                     roomInfo.getRoomLoc(),
                     roomInfo.getNetName(),
-                    roomInfo.getBoardName(),
-                    roomInfo.getPortName(),
-                    roomInfo.getFiberName(),
+                    new HashMap<>(),
                     "", "", "", "", "", "", "",
                     roomFg.getCustomItemData(), new HashMap<>(), roomInfo.getImgList());
             MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
             saveKey(roomFg.getKey());
         } else if (scramNewFg != null && scramNewFg.isVisible()) {
             DataEntity info = scramNewFg.getScramblingInfo();
-            DataEntity entity = new DataEntity("", "", "", "", "", "",
+            DataEntity entity = new DataEntity("", "", "", new HashMap<>(),
                     info.getScramblingId(),
                     info.getChildName(),
                     info.getStartTime(),
@@ -425,9 +423,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DataEntity entity = new DataEntity(roomInfo != null ? roomInfo.getRoomName() : "",
                 roomInfo != null ? roomInfo.getRoomLoc() : "",
                 roomInfo != null ? roomInfo.getNetName() : "",
-                roomInfo != null ? roomInfo.getBoardName() : "",
-                roomInfo != null ? roomInfo.getPortName() : "",
-                roomInfo != null ? roomInfo.getFiberName() : "",
+                new HashMap<>(),
                 info != null ? info.getScramblingId() : "",
                 info != null ? info.getChildName() : "",
                 info != null ? info.getStartTime() : "",

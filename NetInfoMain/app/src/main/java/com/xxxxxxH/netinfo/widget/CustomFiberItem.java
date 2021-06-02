@@ -1,6 +1,7 @@
 package com.xxxxxxH.netinfo.widget;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +62,7 @@ public class CustomFiberItem extends LinearLayout {
     }
 
     public String getPortContent() {
-        return portContent.getText().toString();
+        return TextUtils.isEmpty(portContent.getText().toString()) ? "" : portContent.getText().toString();
     }
 
     public void setPortContent(String s) {
@@ -69,7 +70,7 @@ public class CustomFiberItem extends LinearLayout {
     }
 
     public String getFiberRxContent() {
-        return fiberRxContent.getText().toString();
+        return TextUtils.isEmpty(fiberRxContent.getText().toString()) ? "" : fiberRxContent.getText().toString();
     }
 
     public void setFiberRxContent(String s) {
@@ -77,7 +78,7 @@ public class CustomFiberItem extends LinearLayout {
     }
 
     public String getFiberTxContent() {
-        return fiberTxContent.getText().toString();
+        return TextUtils.isEmpty(fiberTxContent.getText().toString()) ? "" : fiberTxContent.getText().toString();
     }
 
     public void setFiberTxContent(String s) {

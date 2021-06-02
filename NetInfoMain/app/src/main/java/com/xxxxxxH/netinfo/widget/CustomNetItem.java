@@ -1,6 +1,7 @@
 package com.xxxxxxH.netinfo.widget;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,7 @@ public class CustomNetItem extends LinearLayout {
     }
 
     public String getBoardName() {
-        return boardName.getText().toString();
+        return TextUtils.isEmpty(boardName.getText().toString()) ? "" : boardName.getText().toString();
     }
 
     public void setBoardName(String s) {
@@ -50,7 +51,7 @@ public class CustomNetItem extends LinearLayout {
     }
 
     public String getBoardContent() {
-        return boardContent.getText().toString();
+        return TextUtils.isEmpty(boardContent.getText().toString()) ? "" : boardContent.getText().toString();
     }
 
     public void setBoardContent(String s) {

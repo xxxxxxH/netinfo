@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Copyright (C) 2021,2021/5/26, a Tencent company. All rights reserved.
@@ -14,12 +15,9 @@ import java.util.HashMap;
  */
 public class DataEntity implements Parcelable {
 
-    private String roomName = "";
-    private String roomLoc = "";
-    private String netName = "";
-    private String boardName = "";
-    private String portName = "";
-    private String fiberName = "";
+    private String roomName = "";//机房名称
+    private String roomLoc = "";//网元坐标
+    private String netName = "";//网元名称
     private String scramblingId = "";
     private String childName = "";
     private String startTime = "";
@@ -27,25 +25,23 @@ public class DataEntity implements Parcelable {
     private String scramblingRate = "";
     private String scramblingCode = "";
     private String scramblingLoc = "";
-    private HashMap<String, String> customRoom;
+    private HashMap<String, String> customRoom;//自定义字段
     private HashMap<String, String> customScrambling;
-    private ArrayList<String> imgList;
+    private ArrayList<String> imgList;//现场图片
+    private HashMap<String, List<BoardDetailsEntity>> netDetails;//网元详细信息
 
     public DataEntity() {
 
     }
 
-    public DataEntity(String roomName, String roomLoc, String netName, String boardName, String portName,
-            String fiberName,
+    public DataEntity(String roomName, String roomLoc, String netName, HashMap<String, List<BoardDetailsEntity>> netDetails,
             String scramblingId, String childName, String startTime, String endTime, String scramblingRate,
             String scramblingCode, String scramblingLoc,
             HashMap<String, String> customRoom, HashMap<String, String> customScrambling, ArrayList<String> imgList) {
         this.roomName = roomName;
         this.roomLoc = roomLoc;
         this.netName = netName;
-        this.boardName = boardName;
-        this.portName = portName;
-        this.fiberName = fiberName;
+        this.netDetails = netDetails;
         this.scramblingId = scramblingId;
         this.childName = childName;
         this.startTime = startTime;
@@ -62,9 +58,6 @@ public class DataEntity implements Parcelable {
         roomName = in.readString();
         roomLoc = in.readString();
         netName = in.readString();
-        boardName = in.readString();
-        portName = in.readString();
-        fiberName = in.readString();
         scramblingId = in.readString();
         childName = in.readString();
         startTime = in.readString();
@@ -74,6 +67,7 @@ public class DataEntity implements Parcelable {
         scramblingLoc = in.readString();
         customRoom = in.readHashMap(HashMap.class.getClassLoader());
         customScrambling = in.readHashMap(HashMap.class.getClassLoader());
+        netDetails = in.readHashMap(HashMap.class.getClassLoader());
         imgList = in.readArrayList(ArrayList.class.getClassLoader());
     }
 
@@ -99,9 +93,6 @@ public class DataEntity implements Parcelable {
         dest.writeString(roomName);
         dest.writeString(roomLoc);
         dest.writeString(netName);
-        dest.writeString(boardName);
-        dest.writeString(portName);
-        dest.writeString(fiberName);
         dest.writeString(scramblingId);
         dest.writeString(childName);
         dest.writeString(startTime);
@@ -112,6 +103,7 @@ public class DataEntity implements Parcelable {
         dest.writeMap(customRoom);
         dest.writeMap(customScrambling);
         dest.writeList(imgList);
+        dest.writeMap(netDetails);
     }
 
     public String getRoomName() {
@@ -126,17 +118,6 @@ public class DataEntity implements Parcelable {
         return netName;
     }
 
-    public String getBoardName() {
-        return boardName;
-    }
-
-    public String getPortName() {
-        return portName;
-    }
-
-    public String getFiberName() {
-        return fiberName;
-    }
 
     public String getScramblingId() {
         return scramblingId;
@@ -192,18 +173,6 @@ public class DataEntity implements Parcelable {
 
     public void setNetName(String netName) {
         this.netName = netName;
-    }
-
-    public void setBoardName(String boardName) {
-        this.boardName = boardName;
-    }
-
-    public void setPortName(String portName) {
-        this.portName = portName;
-    }
-
-    public void setFiberName(String fiberName) {
-        this.fiberName = fiberName;
     }
 
     public void setScramblingId(String scramblingId) {
