@@ -107,7 +107,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     private EditText boardNum;
     private EditText portNum;
 
-    private HashMap<String, List<BoardDetailsEntity>> map;
+    public HashMap<String, ArrayList<BoardDetailsEntity>> map;
 
     public NetElementFragment() {
     }
@@ -253,9 +253,6 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 detailsDialog = new NetDetailsDialog(getActivity());
                 detailsDialog.setListener(this);
                 detailsDialog.show();
-                if (netInfoAdapter.getData() != null && netInfoAdapter.getData().size() > 0){
-
-                }
                 addNetDetails(true, Integer.parseInt(boardNum.getText().toString()),
                         Integer.parseInt(portNum.getText().toString()), map);
                 break;
@@ -321,7 +318,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         return dialog;
     }
 
-    private void addNetDetails(boolean isNew, int boardNum, int portNum, HashMap<String, List<BoardDetailsEntity>> data) {
+    private void addNetDetails(boolean isNew, int boardNum, int portNum, HashMap<String,
+            ArrayList<BoardDetailsEntity>> data) {
         if (isNew) {
             for (int i = 1; i < boardNum + 1; i++) {
                 CustomNetItem netItem = new CustomNetItem(getActivity());
@@ -343,7 +341,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                     CustomNetItem netItem = new CustomNetItem(getActivity());
                     String key = data.keySet().iterator().next();
                     netItem.setBoardName(key);
-                    List<BoardDetailsEntity> list = data.get(key);
+                    ArrayList<BoardDetailsEntity> list = data.get(key);
                     netItem.setBoardContent(list.get(0).getBoardContent());
                     for (int j = 0; j < list.size(); j++) {
                         CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
@@ -362,18 +360,20 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     }
 
-    public HashMap<String, List<BoardDetailsEntity>> getNetDetails() {
-        HashMap<String, List<BoardDetailsEntity>> netDetails = new HashMap<>();
+    public HashMap<String, ArrayList<BoardDetailsEntity>> getNetDetails() {
+        HashMap<String, ArrayList<BoardDetailsEntity>> netDetails = new HashMap<>();
         if (detailsDialog != null && detailsDialog.getRoot() != null) {
             LinearLayout detailsRoot = detailsDialog.getRoot();
             for (int i = 0; i < detailsRoot.getChildCount(); i++) {
-                List<BoardDetailsEntity> list = new ArrayList<>();
+                ArrayList<BoardDetailsEntity> list = new ArrayList<>();
                 CustomNetItem netItem = (CustomNetItem) detailsRoot.getChildAt(i);
                 LinearLayout fiberRoot = netItem.getRoot();
                 for (int j = 0; fiberRoot != null && j < fiberRoot.getChildCount(); j++) {
                     CustomFiberItem fiberItem = (CustomFiberItem) fiberRoot.getChildAt(j);
-                    BoardDetailsEntity entity = new BoardDetailsEntity(netItem.getBoardContent(), fiberItem.getPortName(), fiberItem.getPortContent(),
-                            fiberItem.getFiberName(), fiberItem.getFiberRxContent(), fiberItem.getFiberTxContent());
+                    BoardDetailsEntity entity = new BoardDetailsEntity(netItem.getBoardContent(),
+                            fiberItem.getPortName(), fiberItem.getPortContent(),
+                            fiberItem.getFiberName(), fiberItem.getFiberRxContent(),
+                            fiberItem.getFiberTxContent());
                     list.add(entity);
                 }
                 netDetails.put(netItem.getBoardName(), list);
@@ -400,16 +400,30 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         if (TextUtils.equals(flag, Constant.FLAG_IMG)) {
             adapter.deleteItem(position);
         }
+
+        if (TextUtils.equals(flag, Constant.FLAG_NAME)) {
+            String key = nameAdapter.getData().get(position);
+            DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
+            if (entity == null || entity.getImgList() == null || entity.getImgList().size() == 0) {
+                Constant.imgList.clear();
+            }
+            if (entity != null) {
+                setViewData(entity);
+            }
+            if (nameDlg != null && nameDlg.isShowing()) {
+                nameDlg.dismiss();
+            }
+        }
         if (TextUtils.equals(flag, Constant.FLAG_NET_INFO)) {
             detailsDialog = new NetDetailsDialog(getActivity());
             detailsDialog.show();
             detailsDialog.setListener(this);
             String key = netInfoAdapter.getData().get(position);
-            HashMap<String, List<BoardDetailsEntity>> itemMap = new HashMap<>();
-            for (String s : map.keySet()){
-                List<BoardDetailsEntity> list = map.get(s);
-                for (BoardDetailsEntity entity : list){
-                    if (TextUtils.equals(key,entity.getBoardContent())){
+            HashMap<String, ArrayList<BoardDetailsEntity>> itemMap = new HashMap<>();
+            for (String s : map.keySet()) {
+                ArrayList<BoardDetailsEntity> list = map.get(s);
+                for (BoardDetailsEntity entity : list) {
+                    if (TextUtils.equals(key, entity.getBoardContent())) {
                         itemMap.put(s, list);
                         break;
                     }
@@ -424,7 +438,17 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     @Override
     public void onItemChildClick(View view, int position, String flag) {
         String key = netInfoAdapter.getData().get(position);
-        map.remove(key);
+        String realKey = "";
+        for (String s : map.keySet()) {
+            ArrayList<BoardDetailsEntity> list = map.get(s);
+            for (BoardDetailsEntity entity : list) {
+                if (TextUtils.equals(key, entity.getBoardContent())) {
+                    realKey = s;
+                    break;
+                }
+            }
+        }
+        map.remove(realKey);
         netInfoAdapter.deleteItem(position);
     }
 
@@ -450,27 +474,44 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
             detailsDialog.dismiss();
         }
 
-        HashMap<String, List<BoardDetailsEntity>> hashMap = getNetDetails();
+        HashMap<String, ArrayList<BoardDetailsEntity>> hashMap = getNetDetails();
 
         for (String key : hashMap.keySet()) {
             map.put(key, hashMap.get(key));
         }
 
-        List<String> data = new ArrayList<>();
-//        if (netInfoAdapter != null && netInfoAdapter.getData() != null && netInfoAdapter.getData().size() > 0) {
-//            data = netInfoAdapter.getData();
-//        }
         if (map != null) {
-            List<BoardDetailsEntity> list = new ArrayList<>();
-            Set<String> set = new HashSet<>();
-            for (String key : map.keySet()) {
-                list = map.get(key);
-                for (BoardDetailsEntity item : list) {
-                    set.add(item.getBoardContent());
-                }
-            }
-            netInfoAdapter.updateData(new ArrayList<>(set));
+
+            setNetAdapter(map);
         }
+
+    }
+
+    private void setNetAdapter(HashMap<String, ArrayList<BoardDetailsEntity>> hashMap) {
+        ArrayList<BoardDetailsEntity> list = new ArrayList<>();
+        Set<String> set = new HashSet<>();
+        for (String key : hashMap.keySet()) {
+            list = hashMap.get(key);
+            for (BoardDetailsEntity item : list) {
+                set.add(item.getBoardContent());
+            }
+        }
+        netInfoAdapter.updateData(new ArrayList<>(set));
+    }
+
+    private void setCustomItem(HashMap<String, String> hashMap) {
+        removeCustomItem();
+        Constant.itemList.clear();
+        Constant.customItem.clear();
+        for (String key : hashMap.keySet()) {
+            CustomItem item = new CustomItem(getActivity());
+            item.setName(key);
+            item.setContent(hashMap.get(key));
+            Constant.customItem.put(key, hashMap.get(key));
+            rootView.addView(item);
+            Constant.itemList.add(item);
+        }
+        rootView.invalidate();
     }
 
     private void openCameraV2() {
@@ -483,8 +524,79 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public DataEntity getNetInfo() {
         DataEntity entity = new DataEntity();
-
+        entity.setNetName(netName.getText().toString());
+        entity.setRoomLoc(netLoc.getText().toString());
+        entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" :
+                roomName.getText().toString());
+        entity.setNetDetails(map);
+        entity.setImgList(adapter.getData());
+        entity.setCustomRoom(Constant.customItem);
         return entity;
+    }
+
+    public String getKey() {
+        return netName.getText().toString();
+    }
+
+    public void setViewData(DataEntity entity) {
+        if (netName != null) {
+            netName.setText(entity.getNetName());
+            netLoc.setText(entity.getRoomLoc());
+            roomName.setText(entity.getRoomName());
+            if (entity.getNetDetails() != null && entity.getNetDetails().size() > 0) {
+                map = entity.getNetDetails();
+                setNetAdapter(entity.getNetDetails());
+            }
+            if (entity.getCustomRoom() != null && entity.getCustomRoom().size() > 0) {
+                setCustomItem(entity.getCustomRoom());
+            }
+            if (entity.getImgList() != null && entity.getImgList().size() > 0) {
+                adapter.updateData(entity.getImgList());
+            }
+        }
+    }
+
+    public HashMap<String, String> getCustomItemData() {
+        HashMap<String, String> data = new HashMap<>();
+        if (rootView.getChildCount() > 6) {
+            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
+                CustomItem item = (CustomItem) rootView.getChildAt(i);
+                data.put(item.getName(), item.getContent());
+            }
+        }
+        return data;
+    }
+
+    public void clearInfo() {
+        map.clear();
+        if (netName != null) {
+            netName.setText("");
+        }
+        if (roomName != null) {
+            roomName.setText("");
+        }
+        if (netRecyclerView != null && netInfoAdapter != null) {
+            netInfoAdapter.updateData(new ArrayList<>());
+        }
+
+        if (imgRecyclerView != null && adapter != null) {
+            adapter.updateData(new ArrayList<>());
+        }
+
+        if (nameAdapter != null) {
+            nameAdapter.updateData(new ArrayList<>());
+        }
+    }
+
+    public void removeCustomItem() {
+        if (Constant.customItem != null && Constant.customItem.size() > 0) {
+            int count = Constant.customItem.size();
+            for (int i = count; i > 0; i--) {
+                rootView.removeViewAt(rootView.getChildCount() - 1);
+            }
+            rootView.invalidate();
+            Constant.customItem.clear();
+        }
     }
 
     public void getLocation() {

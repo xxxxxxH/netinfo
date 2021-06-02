@@ -28,9 +28,9 @@ import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.dialog.LoadingDialog;
+import com.xxxxxxH.netinfo.entity.BoardDetailsEntity;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.fragment.NetElementFragment;
-import com.xxxxxxH.netinfo.fragment.RoomInfoFragment;
 import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
 import com.xxxxxxH.netinfo.sendmain.UsefulSTMP;
@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.tv_save)
     public TextView save;
 
-    private RoomInfoFragment roomFg;
+    //    private RoomInfoFragment roomFg;
     //    private ScramblingFragment scramFg;
     private ScramblingNewFragment scramNewFg;
     private NetElementFragment netFg;
@@ -93,9 +94,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     showPosition(0);
                     room.setTextColor(Color.RED);
                     scram.setTextColor(Color.BLACK);
-                    delCache(roomFg.getKey());
-                    roomFg.removeCustomItem();
-                    roomFg.clearRoomInfo();
+                    delCache(netFg.getKey());
+                    netFg.removeCustomItem();
+                    netFg.clearInfo();
                     Constant.customItem.clear();
                     if (scramNewFg != null) {
                         delCache2(scramNewFg.getKey());
@@ -168,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void hidAll(FragmentTransaction ft) {
-        if (roomFg != null) {
-            ft.hide(roomFg);
+        if (netFg != null) {
+            ft.hide(netFg);
         }
         if (scramNewFg != null) {
             ft.hide(scramNewFg);
@@ -220,20 +221,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showPosition(1);
                 break;
             case R.id.tv_submit:
-                if (TextUtils.isEmpty(roomFg.getKey())) {
+                if (TextUtils.isEmpty(netFg.getKey())) {
                     Toast.makeText(MainActivity.this, "信息不完整", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 loadingDialog = new LoadingDialog(MainActivity.this);
                 loadingDialog.show();
                 ArrayList<String> files = new ArrayList<>();
-                if (roomFg != null && roomFg.adapter != null && roomFg.adapter.getData() != null && roomFg.adapter.getData().size() > 0) {
+                if (netFg != null && netFg.adapter != null && netFg.adapter.getData() != null && netFg.adapter.getData().size() > 0) {
                     Log.i("TAG", "开始压缩");
                     boolean result = false;
-                    String zipPath = Environment.getExternalStorageDirectory() + File.separator +
-                            "test.zip";
+                    String zipPath =
+                            Environment.getExternalStorageDirectory() + File.separator + "test.zip";
                     try {
-                        result = ZipUtils.zipFiles(roomFg.getImgList(), zipPath);
+                        result = ZipUtils.zipFiles(netFg.adapter.getData(), zipPath);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.i("TAG", "压缩出错");
@@ -249,9 +250,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        boolean result = EmailUtil.autoSendMail(roomFg.getKey(),
+                        boolean result = EmailUtil.autoSendMail(netFg.getKey(),
                                 new Gson().toJson(entity), Constant.TO, UsefulSTMP.QQ,
-                                Constant.FROM, Constant.pwd, files.size() > 0 ? files.toArray(new String[]{}) : null);
+                                Constant.FROM, Constant.pwd, files.size() > 0 ?
+                                        files.toArray(new String[]{}) : null);
                         Message msg = new Message();
                         msg.what = result ? 1 : -1;
                         mHandler.sendMessage(msg);
@@ -285,8 +287,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         key.add(newValue);
         MMKV.defaultMMKV().encode(Constant.KEY_ROOM_NAME, key);
-        if (roomFg.nameAdapter != null) {
-            roomFg.nameAdapter.updateData(new ArrayList<>(key));
+        if (netFg.nameAdapter != null) {
+            netFg.nameAdapter.updateData(new ArrayList<>(key));
         }
     }
 
@@ -306,15 +308,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void delCache(String key) {
-        if (!TextUtils.isEmpty(roomFg.getKey())) {
+        if (!TextUtils.isEmpty(netFg.getKey())) {
             MMKV.defaultMMKV().remove(key);
             Set<String> keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
             if (keySet != null) {
                 keySet.remove(key);
             }
             MMKV.defaultMMKV().encode(Constant.KEY_ROOM_NAME, keySet);
-            if (roomFg.nameAdapter != null) {
-                roomFg.nameAdapter.updateData(new ArrayList<>(keySet));
+            if (netFg.nameAdapter != null) {
+                netFg.nameAdapter.updateData(new ArrayList<>(keySet));
             }
         }
     }
@@ -338,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public DataEntity getCurRoomInfo() {
-        return getRoomInfo(roomFg.getKey());
+        return getRoomInfo(netFg.getKey());
     }
 
 
@@ -352,9 +354,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //新增
     private void add() {
-        if (roomFg != null && roomFg.isVisible()) {
-            roomFg.removeCustomItem();
-            roomFg.clearRoomInfo();
+        if (netFg != null && netFg.isVisible()) {
+            netFg.removeCustomItem();
+            netFg.clearInfo();
             Constant.customItem.clear();
         }
         if (scramNewFg != null && scramNewFg.isVisible()) {
@@ -366,10 +368,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //删除
     private void delete() {
-        if (roomFg != null && roomFg.isVisible()) {
-            delCache(roomFg.getKey());
-            roomFg.removeCustomItem();
-            roomFg.clearRoomInfo();
+        if (netFg != null && netFg.isVisible()) {
+            delCache(netFg.getKey());
+            netFg.removeCustomItem();
+            netFg.clearInfo();
             Constant.customItem.clear();
         } else if (scramNewFg != null && scramNewFg.isVisible()) {
             delCache2(scramNewFg.getKey());
@@ -381,28 +383,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //保存
     private void save() {
-        if (roomFg != null && roomFg.isVisible()) {
-            DataEntity roomInfo = roomFg.getRoomInfo();
-            DataEntity entity = new DataEntity(roomInfo.getRoomName(),
-                    roomInfo.getRoomLoc(),
-                    roomInfo.getNetName(),
-                    new HashMap<>(),
-                    "", "", "", "", "", "", "",
-                    roomFg.getCustomItemData(), new HashMap<>(), roomInfo.getImgList());
-            MMKV.defaultMMKV().encode(roomFg.getKey(), entity);
-            saveKey(roomFg.getKey());
+        if (netFg != null && netFg.isVisible()) {
+            DataEntity netInfo = netFg.getNetInfo();
+            DataEntity entity = new DataEntity(netInfo.getRoomName(), netInfo.getRoomLoc(),
+                    netInfo.getNetName(), netFg.map, "", "", "", "", "", "", "",
+                    netFg.getCustomItemData(), new HashMap<>(), netInfo.getImgList());
+            MMKV.defaultMMKV().encode(netFg.getKey(), entity);
+            saveKey(netFg.getKey());
         } else if (scramNewFg != null && scramNewFg.isVisible()) {
             DataEntity info = scramNewFg.getScramblingInfo();
             DataEntity entity = new DataEntity("", "", "", new HashMap<>(),
-                    info.getScramblingId(),
-                    info.getChildName(),
-                    info.getStartTime(),
-                    info.getEndTime(),
-                    info.getScramblingRate(),
-                    info.getScramblingCode(),
-                    info.getScramblingLoc(),
-                    new HashMap<>(),
-                    scramNewFg.getCustomItemData(),
+                    info.getScramblingId(), info.getChildName(), info.getStartTime(),
+                    info.getEndTime(), info.getScramblingRate(), info.getScramblingCode(),
+                    info.getScramblingLoc(), new HashMap<>(), scramNewFg.getCustomItemData(),
                     new ArrayList<>());
             MMKV.defaultMMKV().encode(scramNewFg.getKey(), entity);
             saveKey2(scramNewFg.getKey());
@@ -411,29 +404,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //提交
     private DataEntity submit() {
-        DataEntity roomInfo = null;
+        DataEntity netInfo = null;
         DataEntity info = null;
-        if (roomFg != null) {
-            roomInfo = roomFg.getRoomInfo();
+        if (netFg != null) {
+            netInfo = netFg.getNetInfo();
         }
         if (scramNewFg != null) {
             info = scramNewFg.getScramblingInfo();
         }
 
-        DataEntity entity = new DataEntity(roomInfo != null ? roomInfo.getRoomName() : "",
-                roomInfo != null ? roomInfo.getRoomLoc() : "",
-                roomInfo != null ? roomInfo.getNetName() : "",
-                new HashMap<>(),
-                info != null ? info.getScramblingId() : "",
-                info != null ? info.getChildName() : "",
-                info != null ? info.getStartTime() : "",
-                info != null ? info.getEndTime() : "",
-                info != null ? info.getScramblingRate() : "",
-                info != null ? info.getScramblingCode() : "",
-                info != null ? info.getScramblingLoc() : "",
-                roomFg != null ? roomFg.getCustomItemData() : new HashMap<>(),
-                scramNewFg != null ? scramNewFg.getCustomItemData() : new HashMap<>(),
-                roomFg != null ? roomInfo.getImgList() : new ArrayList<>());
+        DataEntity entity = new DataEntity(netInfo != null ? netInfo.getRoomName() : "",
+                netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ?
+                netInfo.getNetName() : "",
+                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(), info != null ? info.getScramblingId() : "", info != null ? info.getChildName() : "", info != null ? info.getStartTime() : "", info != null ? info.getEndTime() : "", info != null ? info.getScramblingRate() : "", info != null ? info.getScramblingCode() : "", info != null ? info.getScramblingLoc() : "", netFg != null ? netFg.getCustomItemData() : new HashMap<>(), scramNewFg != null ? scramNewFg.getCustomItemData() : new HashMap<>(), netFg != null ? netInfo.getImgList() : new ArrayList<>());
 
         return entity;
     }

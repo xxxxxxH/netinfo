@@ -2,6 +2,7 @@ package com.xxxxxxH.netinfo.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,16 +29,18 @@ public class DataEntity implements Parcelable {
     private HashMap<String, String> customRoom;//自定义字段
     private HashMap<String, String> customScrambling;
     private ArrayList<String> imgList;//现场图片
-    private HashMap<String, List<BoardDetailsEntity>> netDetails;//网元详细信息
+    private HashMap<String, ArrayList<BoardDetailsEntity>> netDetails;//网元详细信息
 
     public DataEntity() {
 
     }
 
-    public DataEntity(String roomName, String roomLoc, String netName, HashMap<String, List<BoardDetailsEntity>> netDetails,
-            String scramblingId, String childName, String startTime, String endTime, String scramblingRate,
-            String scramblingCode, String scramblingLoc,
-            HashMap<String, String> customRoom, HashMap<String, String> customScrambling, ArrayList<String> imgList) {
+    public DataEntity(String roomName, String roomLoc, String netName, HashMap<String,
+            ArrayList<BoardDetailsEntity>> netDetails, String scramblingId, String childName,
+                      String startTime, String endTime, String scramblingRate,
+                      String scramblingCode, String scramblingLoc,
+                      HashMap<String, String> customRoom,
+                      HashMap<String, String> customScrambling, ArrayList<String> imgList) {
         this.roomName = roomName;
         this.roomLoc = roomLoc;
         this.netName = netName;
@@ -58,6 +61,7 @@ public class DataEntity implements Parcelable {
         roomName = in.readString();
         roomLoc = in.readString();
         netName = in.readString();
+        netDetails = in.readHashMap(BoardDetailsEntity.class.getClassLoader());
         scramblingId = in.readString();
         childName = in.readString();
         startTime = in.readString();
@@ -67,7 +71,6 @@ public class DataEntity implements Parcelable {
         scramblingLoc = in.readString();
         customRoom = in.readHashMap(HashMap.class.getClassLoader());
         customScrambling = in.readHashMap(HashMap.class.getClassLoader());
-        netDetails = in.readHashMap(HashMap.class.getClassLoader());
         imgList = in.readArrayList(ArrayList.class.getClassLoader());
     }
 
@@ -93,6 +96,7 @@ public class DataEntity implements Parcelable {
         dest.writeString(roomName);
         dest.writeString(roomLoc);
         dest.writeString(netName);
+        dest.writeMap(netDetails);
         dest.writeString(scramblingId);
         dest.writeString(childName);
         dest.writeString(startTime);
@@ -103,7 +107,7 @@ public class DataEntity implements Parcelable {
         dest.writeMap(customRoom);
         dest.writeMap(customScrambling);
         dest.writeList(imgList);
-        dest.writeMap(netDetails);
+
     }
 
     public String getRoomName() {
@@ -209,5 +213,13 @@ public class DataEntity implements Parcelable {
 
     public void setImgList(ArrayList<String> imgList) {
         this.imgList = imgList;
+    }
+
+    public HashMap<String, ArrayList<BoardDetailsEntity>> getNetDetails() {
+        return netDetails;
+    }
+
+    public void setNetDetails(HashMap<String, ArrayList<BoardDetailsEntity>> netDetails) {
+        this.netDetails = netDetails;
     }
 }

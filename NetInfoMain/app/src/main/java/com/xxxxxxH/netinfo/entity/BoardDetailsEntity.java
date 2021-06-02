@@ -19,7 +19,9 @@ public class BoardDetailsEntity implements Parcelable {
     private String fiberRx;
     private String fiberTx;
 
-    public BoardDetailsEntity(){}
+    public BoardDetailsEntity(){
+
+    }
 
     public BoardDetailsEntity(String boardContent,String portName,String portContent,String fiberName,String fiberRx,String fiberTx){
         this.boardContent = boardContent;
