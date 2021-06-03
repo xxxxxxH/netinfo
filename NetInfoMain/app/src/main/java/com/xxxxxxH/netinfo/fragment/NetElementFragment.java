@@ -261,8 +261,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public boolean isHasEqualField(String field) {
         boolean result = false;
-        if (rootView.getChildCount() > 6) {
-            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
+        if (rootView.getChildCount() > 5) {
+            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 if (TextUtils.equals(item.getName(), field)) {
                     result = true;
@@ -561,7 +561,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public HashMap<String, String> getCustomItemData() {
         HashMap<String, String> data = new HashMap<>();
-        if (rootView.getChildCount() > 6) {
+        if (rootView.getChildCount() > 5) {
             for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 data.put(item.getName(), item.getContent());

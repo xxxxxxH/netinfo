@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.tv_submit:
                 if (TextUtils.isEmpty(netFg.getKey())) {
-                    Toast.makeText(MainActivity.this, "信息不完整", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "请输入网元名称", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 loadingDialog = new LoadingDialog(MainActivity.this);
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 DataEntity entity = submit();
-
+//
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void saveKey(String newValue) {
         if (TextUtils.isEmpty(newValue)) {
-            Toast.makeText(this, "请输入机房名称", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "请输入网元名称", Toast.LENGTH_LONG).show();
             return;
         }
         Set<String> key = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
@@ -414,9 +414,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         DataEntity entity = new DataEntity(netInfo != null ? netInfo.getRoomName() : "",
-                netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ?
-                netInfo.getNetName() : "",
-                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(), info != null ? info.getScramblingId() : "", info != null ? info.getChildName() : "", info != null ? info.getStartTime() : "", info != null ? info.getEndTime() : "", info != null ? info.getScramblingRate() : "", info != null ? info.getScramblingCode() : "", info != null ? info.getScramblingLoc() : "", netFg != null ? netFg.getCustomItemData() : new HashMap<>(), scramNewFg != null ? scramNewFg.getCustomItemData() : new HashMap<>(), netFg != null ? netInfo.getImgList() : new ArrayList<>());
+                netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ? netInfo.getNetName() : "",
+                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(),
+                info != null ? info.getScramblingId() : "",
+                info != null ? info.getChildName() : "",
+                info != null ? info.getStartTime() : "",
+                info != null ? info.getEndTime() : "",
+                info != null ? info.getScramblingRate() : "",
+                info != null ? info.getScramblingCode() : "",
+                info != null ? info.getScramblingLoc() : "",
+                netFg != null ? netFg.getCustomItemData() : new HashMap<>(),
+                scramNewFg != null ? scramNewFg.getCustomItemData() : new HashMap<>(),
+                netFg != null ? netInfo.getImgList() : new ArrayList<>());
 
         return entity;
     }
