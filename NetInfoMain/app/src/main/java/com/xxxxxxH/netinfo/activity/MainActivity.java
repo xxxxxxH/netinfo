@@ -16,7 +16,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,7 +86,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final double curLongitude = 0;
     private final double curLatitude = 0;
     private LoadingDialog loadingDialog;
+    private Dialog submitDlg = null;
     private Dialog notice = null;
+    private EditText address;
+
 
     @SuppressLint("HandlerLeak")
     public Handler mHandler = new Handler() {
@@ -223,49 +230,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showPosition(1);
                 break;
             case R.id.tv_submit:
-                if (TextUtils.isEmpty(netFg.getKey())) {
-                    Toast.makeText(MainActivity.this, "请输入网元名称", Toast.LENGTH_SHORT).show();
-                    return;
+                if (submitDlg == null) {
+                    submitDlg = submitDlg();
                 }
-                loadingDialog = new LoadingDialog(MainActivity.this);
-                loadingDialog.show();
-                ArrayList<String> files = new ArrayList<>();
-                if (netFg != null && netFg.adapter != null && netFg.adapter.getData() != null && netFg.adapter.getData().size() > 0) {
-                    Log.i("TAG", "开始压缩");
-                    boolean result = false;
-                    String zipPath =
-                            Environment.getExternalStorageDirectory() + File.separator + "test.zip";
-                    try {
-                        result = ZipUtils.zipFiles(netFg.adapter.getData(), zipPath);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.i("TAG", "压缩出错");
-                    }
-                    Log.i("TAG", "压缩结束 result = " + result);
-                    if (result) {
-                        files.add(zipPath);
-                    }
-                }
-
-                DataEntity entity = submit();
-//
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean result = EmailUtil.autoSendMail(netFg.getKey(),
-                                new Gson().toJson(entity), Constant.TO, UsefulSTMP.QQ,
-                                Constant.FROM, Constant.pwd, files.size() > 0 ?
-                                        files.toArray(new String[]{}) : null);
-                        Message msg = new Message();
-                        msg.what = result ? 1 : -1;
-                        mHandler.sendMessage(msg);
-                    }
-                }).start();
-
+                submitDlg.show();
                 break;
             case R.id.tv_add:
                 isSaved();
-                if (notice==null||!notice.isShowing()){
+                if (notice == null || !notice.isShowing()) {
                     add();
                 }
                 break;
@@ -277,7 +249,72 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 save();
                 Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.btn_submit_cancel:
+                if (submitDlg != null && submitDlg.isShowing()) {
+                    submitDlg.dismiss();
+                }
+                break;
+            case R.id.btn_submit_confirm:
+                if (address != null) {
+                    if (isEmail(address.getText().toString())) {
+
+                        MMKV.defaultMMKV().encode(Constant.KEY_EMAIL, TextUtils.isEmpty(address.getText().toString()) ? "" : address.getText().toString());
+
+                        if (TextUtils.isEmpty(netFg.getKey())) {
+                            Toast.makeText(MainActivity.this, "请输入网元名称", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (submitDlg != null && submitDlg.isShowing()) {
+                            submitDlg.dismiss();
+                        }
+                        loadingDialog = new LoadingDialog(MainActivity.this);
+                        loadingDialog.show();
+                        ArrayList<String> files = new ArrayList<>();
+                        if (netFg != null && netFg.adapter != null && netFg.adapter.getData() != null && netFg.adapter.getData().size() > 0) {
+                            Log.i("TAG", "开始压缩");
+                            boolean result = false;
+                            String zipPath =
+                                    Environment.getExternalStorageDirectory() + File.separator + "test.zip";
+                            try {
+                                result = ZipUtils.zipFiles(netFg.adapter.getData(), zipPath);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.i("TAG", "压缩出错");
+                            }
+                            Log.i("TAG", "压缩结束 result = " + result);
+                            if (result) {
+                                files.add(zipPath);
+                            }
+                        }
+
+                        DataEntity entity = submit();
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean result = EmailUtil.autoSendMail(netFg.getKey(),
+                                        new Gson().toJson(entity), Constant.TO, UsefulSTMP.QQ,
+                                        Constant.FROM, Constant.pwd, files.size() > 0 ?
+                                                files.toArray(new String[]{}) : null);
+                                Message msg = new Message();
+                                msg.what = result ? 1 : -1;
+                                mHandler.sendMessage(msg);
+                            }
+                        }).start();
+                    } else {
+                        Toast.makeText(MainActivity.this, "请输入正确邮箱地址", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
         }
+    }
+
+    public static boolean isEmail(String email) {
+        if (null == email || "".equals(email)) return false;
+        Pattern p = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");//复杂匹配
+        Matcher m = p.matcher(email);
+        return m.matches();
     }
 
 
@@ -477,5 +514,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 netFg != null ? netInfo.getImgList() : new ArrayList<>());
 
         return entity;
+    }
+
+    private Dialog submitDlg() {
+        Dialog dialog = null;
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_dialog_submit, null);
+        dialog = new AlertDialog.Builder(MainActivity.this)
+                .setView(view)
+                .create();
+        address = view.findViewById(R.id.mail_address);
+        address.setText(TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL)) ? "" : MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL));
+        view.findViewById(R.id.btn_submit_cancel).setOnClickListener(this);
+        view.findViewById(R.id.btn_submit_confirm).setOnClickListener(this);
+        return dialog;
     }
 }

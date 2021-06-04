@@ -12,6 +12,7 @@ public class Constant {
     public static final String Latitude = "Latitude";
     public static final String KEY_ROOM_NAME = "KEY_ROOM_NAME";
     public static final String KEY_SCRAM_ID = "KEY_SCRAM_ID";
+    public static final String KEY_EMAIL = "KEY_EMAIL";
     public static ArrayList<String> imgList = null;
     public static ArrayList<CustomItem> itemList = null;
     public static ArrayList<CustomItem> itemList2 = null;
