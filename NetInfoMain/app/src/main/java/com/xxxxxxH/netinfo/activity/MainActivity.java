@@ -2,6 +2,9 @@ package com.xxxxxxH.netinfo.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -28,7 +31,6 @@ import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.dialog.LoadingDialog;
-import com.xxxxxxH.netinfo.entity.BoardDetailsEntity;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.fragment.NetElementFragment;
 import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
@@ -41,7 +43,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final double curLongitude = 0;
     private final double curLatitude = 0;
     private LoadingDialog loadingDialog;
+    private Dialog notice = null;
 
     @SuppressLint("HandlerLeak")
     public Handler mHandler = new Handler() {
@@ -262,7 +264,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.tv_add:
-                add();
+                isSaved();
+                if (notice==null||!notice.isShowing()){
+                    add();
+                }
                 break;
             case R.id.tv_del:
                 delete();
@@ -349,6 +354,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         MMKV.defaultMMKV().remove(Constant.Longitude);
         MMKV.defaultMMKV().remove(Constant.Latitude);
+    }
+
+    private Dialog createNotice() {
+        Dialog dialog = null;
+        dialog = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("提示")
+                .setMessage("是否保存当前数据")
+                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        save();
+                        dialog.dismiss();
+                        add();
+                    }
+                })
+                .setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        return dialog;
+    }
+
+    private void isSaved() {
+        if (netFg != null && netFg.isVisible()) {
+            if (TextUtils.isEmpty(netFg.getKey())) {
+                return;
+            }
+            if (TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(netFg.getKey()))) {
+                notice = createNotice();
+                notice.show();
+            }
+        }
+        if (scramNewFg != null && scramNewFg.isVisible()) {
+            if (TextUtils.isEmpty(scramNewFg.getKey())) {
+                return;
+            }
+            if (TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(scramNewFg.getKey()))) {
+                notice = createNotice();
+                notice.show();
+            }
+        }
     }
 
 
