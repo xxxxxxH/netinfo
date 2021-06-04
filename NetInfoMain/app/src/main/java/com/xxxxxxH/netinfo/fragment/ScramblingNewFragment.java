@@ -36,6 +36,7 @@ import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
 import com.xxxxxxH.netinfo.widget.CustomItem;
@@ -174,9 +175,13 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 idDlg.show();
                 break;
             case R.id.scrambling_img_add_loc:
-                curLongitude = 0.0;
-                curLatitude = 0.0;
-                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                if (FileUtils.isFastClick()){
+                    curLatitude = 0.0;
+                    curLongitude = 0.0;
+                    Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(Constant.Context, "请勿重复点击", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.start_time_refresh:
                 start.setText(FormatUtils.formatDate(new Date()));

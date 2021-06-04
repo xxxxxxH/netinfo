@@ -10,6 +10,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +43,7 @@ import com.xxxxxxH.netinfo.dialog.NetDetailsDialog;
 import com.xxxxxxH.netinfo.entity.BoardDetailsEntity;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.NetDetailsBtnClickListener;
@@ -83,6 +86,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     ImageView nameSelect;
     @BindView(R.id.ll_f_n)
     LinearLayout rootView;
+    @BindView(R.id.room_img_loc)
+    ImageView netImgLoc;
 
 
     private LocationManager locationManager;
@@ -106,6 +111,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     private EditText fieldContent;
     private EditText boardNum;
     private EditText portNum;
+
 
     public HashMap<String, ArrayList<BoardDetailsEntity>> map;
 
@@ -141,6 +147,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         nameSelect.setOnClickListener(this);
         imgAdd.setOnClickListener(this);
         customAdd.setOnClickListener(this);
+        netImgLoc.setOnClickListener(this);
     }
 
     private void iniAdapter() {
@@ -173,9 +180,20 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         return result;
     }
 
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.room_img_loc:
+                if (FileUtils.isFastClick()){
+                    curLatitude = 0.0;
+                    curLongitude = 0.0;
+                    Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(Constant.Context, "请勿重复点击", Toast.LENGTH_SHORT).show();
+                }
+                break;
             case R.id.room_name_select:
                 Set<String> data = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
                 if (data == null) {
