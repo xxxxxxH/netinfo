@@ -260,10 +260,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         MMKV.defaultMMKV().encode(Constant.KEY_EMAIL, TextUtils.isEmpty(address.getText().toString()) ? "" : address.getText().toString());
 
-                        if (TextUtils.isEmpty(netFg.getKey())) {
-                            Toast.makeText(MainActivity.this, "请输入网元名称", Toast.LENGTH_SHORT).show();
-                            return;
+                        if (netFg != null && netFg.isVisible()) {
+                           if (TextUtils.isEmpty(netFg.getKey())){
+                               Toast.makeText(MainActivity.this, "请检查网元名称", Toast.LENGTH_SHORT).show();
+                               return;
+                           }
                         }
+                        if (scramNewFg != null && scramNewFg.isVisible()) {
+                            if (TextUtils.isEmpty(scramNewFg.getKey())){
+                                Toast.makeText(MainActivity.this, "请加扰id", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
+
 
                         if (submitDlg != null && submitDlg.isShowing()) {
                             submitDlg.dismiss();
@@ -294,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public void run() {
                                 boolean result = EmailUtil.autoSendMail(netFg.getKey(),
-                                        new Gson().toJson(entity), Constant.TO, UsefulSTMP.QQ,
+                                        new Gson().toJson(entity), address.getText().toString(), UsefulSTMP.QQ,
                                         Constant.FROM, Constant.pwd, files.size() > 0 ?
                                                 files.toArray(new String[]{}) : null);
                                 Message msg = new Message();
