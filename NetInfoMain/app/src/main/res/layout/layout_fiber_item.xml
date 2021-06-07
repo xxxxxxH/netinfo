@@ -16,7 +16,7 @@
             android:layout_marginEnd="8dp"
             android:layout_height="48dp"
             android:gravity="center"
-            android:text="@string/port_name"
+            android:text="端口对应光缆编号"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -36,6 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:visibility="gone"
         android:orientation="horizontal">
 
         <TextView

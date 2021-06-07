@@ -52,6 +52,8 @@
             android:background="@drawable/et_bg"
             android:inputType="number"
             android:hint="@string/input"
+            android:enabled="false"
+            android:text="2"
             android:paddingHorizontal="12dp"
             android:textColor="@color/black"
             android:textSize="14sp" />

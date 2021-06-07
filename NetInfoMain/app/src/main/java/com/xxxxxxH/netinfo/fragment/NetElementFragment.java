@@ -267,6 +267,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 }
                 break;
             case R.id.dialog_confirm_add_net:
+                if (TextUtils.isEmpty(boardNum.getText().toString())){
+                    return;
+                }
                 addNetDialog.dismiss();
                 detailsDialog = new NetDetailsDialog(getActivity());
                 detailsDialog.setListener(this);
@@ -339,13 +342,20 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     private void addNetDetails(boolean isNew, int boardNum, int portNum, HashMap<String,
             ArrayList<BoardDetailsEntity>> data) {
         if (isNew) {
+            String s = "";
+            int index = 0;
+            if (netInfoAdapter.getData().size() > 0){
+                s = netInfoAdapter.getData().get(netInfoAdapter.getItemCount() - 1);
+                index = TextUtils.isEmpty(s)?0:Integer.parseInt(s.substring(s.length()-1,s.length()));
+            }
             for (int i = 1; i < boardNum + 1; i++) {
                 CustomNetItem netItem = new CustomNetItem(getActivity());
-                netItem.setBoardName("单板名称" + (netInfoAdapter.getData().size() + i));
+                netItem.setBoardName("单板名称" + (index + i));
+                netItem.setBoardContent("同沟检测单板" + (index + i));
                 for (int j = 1; j < portNum + 1; j++) {
                     CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
-                    fiberItem.setPortName("端口名称" + j);
-                    fiberItem.setFiberName("光纤名称" + j);
+                    fiberItem.setPortName("端口对应光缆编号" + j);
+                    fiberItem.setFiberName("光缆编号" + j);
                     netItem.addFiberItem(fiberItem);
                 }
                 detailsDialog.addView(netItem);
@@ -363,9 +373,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                     netItem.setBoardContent(list.get(0).getBoardContent());
                     for (int j = 0; j < list.size(); j++) {
                         CustomFiberItem fiberItem = new CustomFiberItem(getActivity());
-                        fiberItem.setPortName("端口名称" + (j + 1));
+                        fiberItem.setPortName("端口对应光缆编号" + (j + 1));
                         fiberItem.setPortContent(list.get(j).getPortContent());
-                        fiberItem.setFiberName("光纤名称" + (j + 1));
+                        fiberItem.setFiberName("光缆编号" + (j + 1));
                         fiberItem.setFiberRxContent(list.get(j).getFiberRx());
                         fiberItem.setFiberTxContent(list.get(j).getFiberTx());
                         netItem.addFiberItem(fiberItem);
