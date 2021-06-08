@@ -50,7 +50,8 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ScramblingNewFragment extends Fragment implements View.OnClickListener, OnItemClickListener {
+public class ScramblingNewFragment extends Fragment implements View.OnClickListener,
+        OnItemClickListener {
 
     @BindView(R.id.scrambling_id)
     EditText id;
@@ -87,6 +88,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     private EditText fieldName;
     private EditText fieldContent;
     public RoomNameAdapter adapter;
+    private boolean isStart = true;
 
     public ScramblingNewFragment() {
 
@@ -175,17 +177,24 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 idDlg.show();
                 break;
             case R.id.scrambling_img_add_loc:
-                if (FileUtils.isFastClick()){
+                if (FileUtils.isFastClick()) {
                     curLatitude = 0.0;
                     curLongitude = 0.0;
                     Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     Toast.makeText(Constant.Context, "请勿重复点击", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.start_time_refresh:
-                start.setText(FormatUtils.formatDate(new Date()));
-                Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                if (isStart) {
+                    start.setText(FormatUtils.formatDate(new Date()));
+                    Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                    isStart = false;
+                } else {
+                    end.setText(FormatUtils.formatDate(new Date()));
+                    Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
+                    isStart = true;
+                }
                 break;
             case R.id.end_time_refresh:
                 end.setText(FormatUtils.formatDate(new Date()));
