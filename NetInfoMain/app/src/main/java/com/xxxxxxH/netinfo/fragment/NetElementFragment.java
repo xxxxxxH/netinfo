@@ -99,8 +99,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     private final Dialog netDetailsDialog = null;
     private NetDetailsDialog detailsDialog = null;
 
-    private double curLongitude = 0;
-    private double curLatitude = 0;
+    private double curLongitude = 0.0;
+    private double curLatitude = 0.0;
     public static final int TAKE_PHOTO = 1;//声明一个请求码，用于识别返回的结果
     public static final int OPEN_ALBUM = 2;//声明一个请求码，用于识别返回的结果
     public RoomInfoImgAdapter adapter;

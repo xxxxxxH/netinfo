@@ -80,8 +80,8 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     @BindView(R.id.scrambling_img_add_loc)
     ImageView refreshLoc;
 
-    private double curLongitude = 0;
-    private double curLatitude = 0;
+    private double curLongitude = 0.0;
+    private double curLatitude = 0.0;
     private LocationManager locationManager;
     private Dialog customItemDlg = null;
     private Dialog idDlg = null;
