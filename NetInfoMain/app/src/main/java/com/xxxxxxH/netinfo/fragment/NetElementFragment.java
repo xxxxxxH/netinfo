@@ -90,6 +90,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     ImageView netImgLoc;
 
 
+
     private LocationManager locationManager;
     private final Dialog roomDialog = null;
     private Dialog customItemDlg = null;
@@ -432,9 +433,12 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         if (TextUtils.equals(flag, Constant.FLAG_NAME)) {
             String key = nameAdapter.getData().get(position);
             DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
-            if (entity == null || entity.getImgList() == null || entity.getImgList().size() == 0) {
-                Constant.imgList.clear();
+            if (entity == null || entity.getRoomImgList() == null || entity.getRoomImgList().size() == 0) {
+                Constant.imgRoomList.clear();
             }
+//            if (entity == null || entity.getScramblingImgList() == null || entity.getScramblingImgList().size() == 0) {
+//                Constant.imgScramblingList.clear();
+//            }
             if (entity != null) {
                 setViewData(entity);
             }
@@ -557,7 +561,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" :
                 roomName.getText().toString());
         entity.setNetDetails(map);
-        entity.setImgList(adapter.getData());
+        entity.setRoomImgList(adapter.getData());
         entity.setCustomRoom(Constant.customItem);
         return entity;
     }
@@ -581,8 +585,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
             if (entity.getCustomRoom() != null && entity.getCustomRoom().size() > 0) {
                 setCustomItem(entity.getCustomRoom());
             }
-            if (entity.getImgList() != null && entity.getImgList().size() > 0) {
-                adapter.updateData(entity.getImgList());
+            if (entity.getRoomImgList() != null && entity.getRoomImgList().size() > 0) {
+                adapter.updateData(entity.getRoomImgList());
             }
         }
     }

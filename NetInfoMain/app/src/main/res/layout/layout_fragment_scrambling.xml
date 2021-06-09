@@ -257,6 +257,41 @@
                     android:src="@drawable/activity_main_refresh_icon" />
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@+id/scrambling_img_add">
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="@string/img"
+                        android:textColor="@color/black" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/scrambling_img_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/scrambling_img_add"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="center"
+                    android:src="@drawable/activity_main_add_icon" />
+            </RelativeLayout>
+
         </LinearLayout>
     </ScrollView>
 

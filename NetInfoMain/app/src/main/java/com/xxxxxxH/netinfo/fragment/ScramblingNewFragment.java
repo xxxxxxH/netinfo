@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -31,13 +32,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
+import com.xxxxxxH.netinfo.adapter.ScramblingInfoImgAdapter;
 import com.xxxxxxH.netinfo.entity.DataEntity;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
+import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
 import com.xxxxxxH.netinfo.widget.CustomItem;
 
@@ -45,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -79,6 +87,10 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     LinearLayout rootView;
     @BindView(R.id.scrambling_img_add_loc)
     ImageView refreshLoc;
+    @BindView(R.id.scrambling_img_add)
+    ImageView scramblingImgAdd;
+    @BindView(R.id.scrambling_img_recycler)
+    RecyclerView imgScramblingRecyclerView;
 
     private double curLongitude = 0.0;
     private double curLatitude = 0.0;
@@ -87,8 +99,10 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     private Dialog idDlg = null;
     private EditText fieldName;
     private EditText fieldContent;
-    public RoomNameAdapter adapter;
+    public ScramblingInfoImgAdapter scramblingadapter;
+    public RoomNameAdapter roomadapter;
     private boolean isStart = true;
+    private Dialog selectScramblingImgDlg = null;
 
     public ScramblingNewFragment() {
 
@@ -119,6 +133,13 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         id.setText(System.currentTimeMillis() + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)).replace(".", "") + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)).replace(".", ""));
         start.setText(FormatUtils.formatDate(new Date()));
         end.setText(FormatUtils.formatDate(new Date()));
+        scramblingImgAdd.setOnClickListener(this);
+        scramblingadapter = new ScramblingInfoImgAdapter(getActivity(), null);
+        scramblingadapter.setOnItemClickListener(this);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false);
+        imgScramblingRecyclerView.setLayoutManager(manager);
+        imgScramblingRecyclerView.setAdapter(scramblingadapter);
 
         start.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -141,6 +162,26 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == getActivity().RESULT_OK) {
+            scramblingadapter.updateData(handle(PictureSelector.obtainMultipleResult(data)));
+        }
+    }
+
+    private ArrayList<String> handle(List<LocalMedia> list) {
+        ArrayList<String> result = new ArrayList<>();
+        if (scramblingadapter != null && scramblingadapter.getData() != null && scramblingadapter.getData().size() > 0) {
+            result = scramblingadapter.getData();
+        }
+        for (LocalMedia item : list) {
+            result.add(item.getRealPath());
+        }
+        return result;
     }
 
     private TimePickerView createTimePicker(String flag) {
@@ -234,19 +275,65 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                     }
                 }
                 break;
+            case R.id.scrambling_img_add:
+                if (selectScramblingImgDlg == null) {
+                    selectScramblingImgDlg = imgScramblingDialog();
+                }
+                if (!selectScramblingImgDlg.isShowing()) {
+                    selectScramblingImgDlg.show();
+                }
+                break;
+            case R.id.camera:
+                openCameraV2();
+                if (selectScramblingImgDlg != null && selectScramblingImgDlg.isShowing()) {
+                    selectScramblingImgDlg.dismiss();
+                }
+                break;
+            case R.id.photo:
+                if (selectScramblingImgDlg != null && selectScramblingImgDlg.isShowing()) {
+                    selectScramblingImgDlg.dismiss();
+                }
+                setOpenAlbumV2();
+                break;
         }
+    }
+
+    private void openCameraV2() {
+        PictureSelector.create(this).openCamera(PictureMimeType.ofImage()).imageEngine(GlideEngine.createGlideEngine()).forResult(PictureConfig.REQUEST_CAMERA);
+    }
+
+    private void setOpenAlbumV2() {
+        PictureSelector.create(this).openGallery(PictureMimeType.ofImage()).imageEngine(GlideEngine.createGlideEngine()).forResult(PictureConfig.CHOOSE_REQUEST);
     }
 
     @Override
     public void onItemClick(View view, int position, String flag) {
-        String key = adapter.getData().get(position);
-        DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
-        if (entity != null) {
-            setViewData(entity);
+
+
+        if (TextUtils.equals(flag, Constant.FLAG_IMG)) {
+            scramblingadapter.deleteItem(position);
+        } else {
+            String key = roomadapter.getData().get(position);
+            DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
+            if (entity == null || entity.getScramblingImgList() == null || entity.getScramblingImgList().size() == 0) {
+                Constant.imgScramblingList.clear();
+            }
+            if (entity != null) {
+                setViewData(entity);
+            }
+            if (idDlg != null && idDlg.isShowing()) {
+                idDlg.dismiss();
+            }
         }
-        if (idDlg != null && idDlg.isShowing()) {
-            idDlg.dismiss();
-        }
+    }
+
+    private Dialog imgScramblingDialog() {
+        Dialog dialog = null;
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_img, null);
+        dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
+        view.findViewById(R.id.photo).setOnClickListener(this);
+        view.findViewById(R.id.camera).setOnClickListener(this);
+        return dialog;
     }
 
     private Dialog roomDialog(Set<String> data) {
@@ -254,11 +341,11 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.layout_dialog_name, null);
         dialog = new AlertDialog.Builder(getActivity()).setView(view).create();
         RecyclerView recyclerView = view.findViewById(R.id.dialog_recycler);
-        adapter = new RoomNameAdapter(new ArrayList<>(data));
+        roomadapter = new RoomNameAdapter(new ArrayList<>(data));
         LinearLayoutManager manager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(manager);
-        recyclerView.setAdapter(adapter);
-        adapter.setOnItemClickListener(this);
+        recyclerView.setAdapter(roomadapter);
+        roomadapter.setOnItemClickListener(this);
         return dialog;
     }
 
@@ -289,6 +376,8 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 "" : code.getText().toString());
         entity.setScramblingLoc(loc == null || TextUtils.isEmpty(loc.getText().toString()) ? "" :
                 loc.getText().toString());
+        entity.setScramblingImgList(scramblingadapter.getData());
+
         return entity;
     }
 
@@ -316,6 +405,9 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 }
                 rootView.invalidate();
             }
+            if (entity.getScramblingImgList() != null && entity.getScramblingImgList().size() > 0) {
+                scramblingadapter.updateData(entity.getScramblingImgList());
+            }
         }
 
     }
@@ -333,6 +425,9 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         if (code != null) {
             code.setText("");
         }
+        if (imgScramblingRecyclerView != null && scramblingadapter != null) {
+            scramblingadapter.updateData(new ArrayList<>());
+        }
 
     }
 
@@ -349,8 +444,8 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
 
     public HashMap<String, String> getCustomItemData() {
         HashMap<String, String> data = new HashMap<>();
-        if (rootView.getChildCount() > 6) {
-            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
+        if (rootView.getChildCount() > 7) {
+            for (int i = 8; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 data.put(item.getName(), item.getContent());
             }
