@@ -303,7 +303,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public void run() {
                                 boolean result = EmailUtil.autoSendMail(netFg.getKey(),
-                                        new Gson().toJson(entity), address.getText().toString(), UsefulSTMP.QQ,
+                                        new Gson().toJson(entity), address.getText().toString(),
+                                        //UsefulSTMP.QQ,
+                                        UsefulSTMP._163,
                                         Constant.FROM, Constant.pwd, files.size() > 0 ?
                                                 files.toArray(new String[]{}) : null);
                                 Message msg = new Message();

@@ -23,7 +23,10 @@ public class Constant {
     public static HashMap<String, String> customItem2 = null;
     public static Context Context = null;
     public static boolean ADD = false;
-    public static String TO = "1758053745@qq.com";
-    public static String FROM = "425270071@qq.com";
-    public static String pwd = "xjxfvtmygtnmbhjh";
+    //public static String TO = "1758053745@qq.com";
+    //public static String FROM = "425270071@qq.com";
+    //public static String pwd = "xjxfvtmygtnmbhjh";
+    public static String TO = "xiahua2@huawei.com";
+    public static String FROM = "xiahuan1017@163.com";
+    public static String pwd = "ZJTEZZVTXQGFTQAL";
 }
