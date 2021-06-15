@@ -16,8 +16,8 @@ public class BoardDetailsEntity implements Parcelable {
     private String portName;
     private String portContent;
     private String fiberName;
-    private String fiberRx;
-    private String fiberTx;
+//    private String fiberRx;
+//    private String fiberTx;
 
     public BoardDetailsEntity(){
 
@@ -28,8 +28,8 @@ public class BoardDetailsEntity implements Parcelable {
         this.portName = portName;
         this.portContent = portContent;
         this.fiberName = fiberName;
-        this.fiberRx = fiberRx;
-        this.fiberTx = fiberTx;
+//        this.fiberRx = fiberRx;
+//        this.fiberTx = fiberTx;
     }
 
     protected BoardDetailsEntity(Parcel in) {
@@ -37,8 +37,8 @@ public class BoardDetailsEntity implements Parcelable {
         portName = in.readString();
         portContent = in.readString();
         fiberName = in.readString();
-        fiberRx = in.readString();
-        fiberTx = in.readString();
+//        fiberRx = in.readString();
+//        fiberTx = in.readString();
     }
 
     public static final Creator<BoardDetailsEntity> CREATOR = new Creator<BoardDetailsEntity>() {
@@ -64,8 +64,8 @@ public class BoardDetailsEntity implements Parcelable {
         dest.writeString(portName);
         dest.writeString(portContent);
         dest.writeString(fiberName);
-        dest.writeString(fiberRx);
-        dest.writeString(fiberTx);
+//        dest.writeString(fiberRx);
+//        dest.writeString(fiberTx);
     }
 
     public String getBoardContent() {
@@ -100,21 +100,21 @@ public class BoardDetailsEntity implements Parcelable {
         this.fiberName = fiberName;
     }
 
-    public String getFiberRx() {
-        return fiberRx;
-    }
+//    public String getFiberRx() {
+//        return fiberRx;
+//    }
 
-    public void setFiberRx(String fiberRx) {
-        this.fiberRx = fiberRx;
-    }
+//    public void setFiberRx(String fiberRx) {
+//        this.fiberRx = fiberRx;
+//    }
 
-    public String getFiberTx() {
-        return fiberTx;
-    }
+//    public String getFiberTx() {
+//        return fiberTx;
+//    }
 
-    public void setFiberTx(String fiberTx) {
-        this.fiberTx = fiberTx;
-    }
+//    public void setFiberTx(String fiberTx) {
+//        this.fiberTx = fiberTx;
+//    }
 
     public static Creator<BoardDetailsEntity> getCREATOR() {
         return CREATOR;

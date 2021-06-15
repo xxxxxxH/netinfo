@@ -377,8 +377,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                         fiberItem.setPortName("端口对应光缆编号" + (j + 1));
                         fiberItem.setPortContent(list.get(j).getPortContent());
                         fiberItem.setFiberName("光缆编号" + (j + 1));
-                        fiberItem.setFiberRxContent(list.get(j).getFiberRx());
-                        fiberItem.setFiberTxContent(list.get(j).getFiberTx());
+//                        fiberItem.setFiberRxContent(list.get(j).getFiberRx());
+//                        fiberItem.setFiberTxContent(list.get(j).getFiberTx());
                         netItem.addFiberItem(fiberItem);
                     }
                     detailsDialog.addView(netItem);
@@ -401,8 +401,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                     CustomFiberItem fiberItem = (CustomFiberItem) fiberRoot.getChildAt(j);
                     BoardDetailsEntity entity = new BoardDetailsEntity(netItem.getBoardContent(),
                             fiberItem.getPortName(), fiberItem.getPortContent(),
-                            fiberItem.getFiberName(), fiberItem.getFiberRxContent(),
-                            fiberItem.getFiberTxContent());
+                            fiberItem.getFiberName(), "fiberItem.getFiberRxContent()",
+                            "fiberItem.getFiberTxContent()");
                     list.add(entity);
                 }
                 netDetails.put(netItem.getBoardName(), list);

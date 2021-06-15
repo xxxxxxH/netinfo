@@ -34,6 +34,8 @@ import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
 import com.xxxxxxH.netinfo.dialog.LoadingDialog;
 import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.entity.NetInfoEntity;
+import com.xxxxxxH.netinfo.entity.ScramEntity;
 import com.xxxxxxH.netinfo.fragment.NetElementFragment;
 import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
@@ -45,6 +47,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Dialog submitDlg = null;
     private Dialog notice = null;
     private EditText address;
+    List<String> data = new ArrayList<>();
 
 
     @SuppressLint("HandlerLeak")
@@ -104,14 +108,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (netFg != null && netFg.isVisible()) {
                         room.setTextColor(Color.RED);
                         scram.setTextColor(Color.BLACK);
-                        delCache(netFg.getKey());
+                        delData();
                         netFg.removeCustomItem();
                         netFg.clearInfo();
                         Constant.customItem.clear();
                     }
 
                     if (scramNewFg != null && scramNewFg.isVisible()) {
-                        delCache2(scramNewFg.getKey());
+                        delData();
                         scramNewFg.removeCustomItem();
                         scramNewFg.clearScramblingInfo();
                         Constant.customItem2.clear();
@@ -262,7 +266,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (address != null) {
                     if (isEmail(address.getText().toString())) {
 
-                        MMKV.defaultMMKV().encode(Constant.KEY_EMAIL, TextUtils.isEmpty(address.getText().toString()) ? "" : address.getText().toString());
+                        MMKV.defaultMMKV().encode(Constant.KEY_EMAIL,
+                                TextUtils.isEmpty(address.getText().toString()) ? "" :
+                                        address.getText().toString());
 
                         if (netFg != null && netFg.isVisible()) {
                             if (TextUtils.isEmpty(netFg.getKey())) {
@@ -284,16 +290,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         loadingDialog = new LoadingDialog(MainActivity.this);
                         loadingDialog.show();
                         ArrayList<String> files = new ArrayList<>();
-                        // if (netFg != null && netFg.adapter != null && netFg.adapter.getData() != null && netFg.adapter.getData().size() > 0) {
+
+                        //获取当前页面所有的数据
+                        List<DataEntity> list = getCurAllData();
+
                         Log.i("TAG", "开始压缩");
                         boolean result = false;
                         String zipPath =
-                                Environment.getExternalStorageDirectory() + File.separator + "test.zip";
+                                Environment.getExternalStorageDirectory() + File.separator +
+                                        "imgs.zip";
                         try {
                             List<String> data = new ArrayList<>();
-                            data.addAll(netFg != null && netFg.adapter != null && netFg.adapter.getData() != null && netFg.adapter.getData().size() > 0 ? netFg.adapter.getData() : new ArrayList<>());
-                            data.addAll(scramNewFg != null && scramNewFg.scramblingadapter != null && scramNewFg.scramblingadapter.getData() != null && scramNewFg.scramblingadapter.getData().size() > 0 ? scramNewFg.scramblingadapter.getData() : new ArrayList<>());
-                            result = ZipUtils.zipFiles(data, zipPath);
+                            data = getAllImgs(list);
+                            if (data.size() != 0){
+                                result = ZipUtils.zipFiles(data, zipPath);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                             Log.i("TAG", "压缩出错");
@@ -302,25 +313,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (result) {
                             files.add(zipPath);
                         }
-                        // }
+
 
                         DataEntity entity = submit();
 
-                        //获取当前页面所有的数据
-                        List<DataEntity> list = getCurAllData();
+                        data.clear();
 
-                        //处理数据
-                        List<String> data = handleAllData(list);
+                        if (netFg != null && netFg.isVisible()) {
+                            data = submitNetInfo(list);
+                        }
+
+                        if (scramNewFg != null && scramNewFg.isVisible()) {
+                            data = submitScramInfo(list);
+                        }
+
+                        if (data.size() == 0) {
+                            return;
+                        }
 
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                boolean result = EmailUtil.autoSendMail(netFg.getKey(),
-                                        new Gson().toJson(entity), address.getText().toString(),
+                                boolean result = EmailUtil.autoSendMail(getThemeText(),
+                                        data.toString(), address.getText().toString(),
                                         //UsefulSTMP.QQ,
-                                        UsefulSTMP._163,
-                                        Constant.FROM, Constant.pwd, files.size() > 0 ?
-                                                files.toArray(new String[]{}) : null);
+                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,
+                                        files.size() > 0 ? files.toArray(new String[]{}) : null);
                                 Message msg = new Message();
                                 msg.what = result ? 1 : -1;
                                 mHandler.sendMessage(msg);
@@ -370,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MMKV.defaultMMKV().encode(Constant.KEY_SCRAM_ID, key);
         if (scramNewFg.roomadapter != null) {
             scramNewFg.roomadapter.updateData(new ArrayList<>(key));
-        }//16232511941041145306304960
+        }
     }
 
     private void delCache(String key) {
@@ -384,6 +402,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (netFg.nameAdapter != null) {
                 netFg.nameAdapter.updateData(new ArrayList<>(keySet));
             }
+        }
+    }
+
+    private void delData() {
+        Set<String> keySet = new HashSet<>();
+        if (netFg != null && netFg.isVisible()) {
+            keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
+            if (keySet != null){
+                for (String key : keySet){
+                    MMKV.defaultMMKV().removeValueForKey(key);
+                }
+                keySet.clear();
+                MMKV.defaultMMKV().encode(Constant.KEY_ROOM_NAME,keySet);
+            }
+
+        }
+
+        if (scramNewFg != null && scramNewFg.isVisible()) {
+            keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_SCRAM_ID);
+            if (keySet != null){
+                for (String key : keySet){
+                    MMKV.defaultMMKV().removeValueForKey(key);
+                }
+                keySet.clear();
+                MMKV.defaultMMKV().encode(Constant.KEY_SCRAM_ID,keySet);
+            }
+
         }
     }
 
@@ -419,24 +464,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Dialog createNotice() {
         Dialog dialog = null;
-        dialog = new AlertDialog.Builder(MainActivity.this)
-                .setTitle("提示")
-                .setMessage("是否保存当前数据")
-                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        save();
-                        dialog.dismiss();
-                        add();
-                    }
-                })
-                .setPositiveButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
+        dialog =
+                new AlertDialog.Builder(MainActivity.this).setTitle("提示").setMessage("是否保存当前数据").setNegativeButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                save();
+                dialog.dismiss();
+                add();
+            }
+        }).setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).create();
         return dialog;
     }
 
@@ -497,7 +538,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DataEntity netInfo = netFg.getNetInfo();
             DataEntity entity = new DataEntity(netInfo.getRoomName(), netInfo.getRoomLoc(),
                     netInfo.getNetName(), netFg.map, "", "", "", "", "", "", "",
-                    netFg.getCustomItemData(), new HashMap<>(), netInfo.getRoomImgList(), new ArrayList<>());
+                    netFg.getCustomItemData(), new HashMap<>(), netInfo.getRoomImgList(),
+                    new ArrayList<>());
             MMKV.defaultMMKV().encode(netFg.getKey(), entity);
             saveKey(netFg.getKey());
         } else if (scramNewFg != null && scramNewFg.isVisible()) {
@@ -524,49 +566,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         DataEntity entity = new DataEntity(netInfo != null ? netInfo.getRoomName() : "",
-                netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ? netInfo.getNetName() : "",
-                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(),
-                info != null ? info.getScramblingId() : "",
-                info != null ? info.getChildName() : "",
-                info != null ? info.getStartTime() : "",
-                info != null ? info.getEndTime() : "",
-                info != null ? info.getScramblingRate() : "",
-                info != null ? info.getScramblingCode() : "",
-                info != null ? info.getScramblingLoc() : "",
-                netFg != null && netFg.getCustomItemData() != null ? netFg.getCustomItemData() : new HashMap<>(),
-                scramNewFg != null && scramNewFg.getCustomItemData() != null ? scramNewFg.getCustomItemData() : new HashMap<>(),
-                netFg != null && netInfo != null ? netInfo.getRoomImgList() : new ArrayList<>(),
-                scramNewFg != null && info != null ? info.getScramblingImgList() : new ArrayList<>());
+                netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ?
+                netInfo.getNetName() : "",
+                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(), info != null ? info.getScramblingId() : "", info != null ? info.getChildName() : "", info != null ? info.getStartTime() : "", info != null ? info.getEndTime() : "", info != null ? info.getScramblingRate() : "", info != null ? info.getScramblingCode() : "", info != null ? info.getScramblingLoc() : "", netFg != null && netFg.getCustomItemData() != null ? netFg.getCustomItemData() : new HashMap<>(), scramNewFg != null && scramNewFg.getCustomItemData() != null ? scramNewFg.getCustomItemData() : new HashMap<>(), netFg != null && netInfo != null ? netInfo.getRoomImgList() : new ArrayList<>(), scramNewFg != null && info != null ? info.getScramblingImgList() : new ArrayList<>());
 
         return entity;
     }
 
     private Dialog submitDlg() {
         Dialog dialog = null;
-        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_dialog_submit, null);
-        dialog = new AlertDialog.Builder(MainActivity.this)
-                .setView(view)
-                .create();
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_dialog_submit,
+                null);
+        dialog = new AlertDialog.Builder(MainActivity.this).setView(view).create();
         address = view.findViewById(R.id.mail_address);
-        address.setText(TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL)) ? "" : MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL));
+        address.setText(TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL)) ?
+                "" : MMKV.defaultMMKV().decodeString(Constant.KEY_EMAIL));
         view.findViewById(R.id.btn_submit_cancel).setOnClickListener(this);
         view.findViewById(R.id.btn_submit_confirm).setOnClickListener(this);
         return dialog;
     }
 
+    private DataEntity getCurData(String key) {
+        DataEntity entity = null;
+        entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
+        return entity;
+    }
+
     private List<DataEntity> getCurAllData() {
         List<DataEntity> list = new ArrayList<>();
         if (netFg != null && netFg.isVisible()) {
-            if (netFg.nameAdapter != null && netFg.nameAdapter.getData() != null && netFg.nameAdapter.getData().size() > 0) {
-                for (String key : netFg.nameAdapter.getData()) {
+            if (getCurData(netFg.getKey()) == null) {
+                list.add(netFg.getNetInfo());
+            }
+            Set<String> keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
+            if (keySet != null){
+                for (String key:keySet){
                     DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
                     list.add(entity);
                 }
             }
         }
         if (scramNewFg != null && scramNewFg.isVisible()) {
-            if (scramNewFg.roomadapter != null && scramNewFg.roomadapter.getData() != null && scramNewFg.roomadapter.getData().size() > 0) {
-                for (String key : scramNewFg.roomadapter.getData()) {
+            if (getCurData(scramNewFg.getKey()) == null) {
+                list.add(scramNewFg.getScramblingInfo());
+            }
+            Set<String> keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_SCRAM_ID);
+            if (keySet != null){
+                for (String key:keySet){
                     DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
                     list.add(entity);
                 }
@@ -575,13 +621,87 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return list;
     }
 
-    private List<String> handleAllData(List<DataEntity> list){
+    private List<String> submitNetInfo(List<DataEntity> list) {
         List<String> result = new ArrayList<>();
+        List<NetInfoEntity> entityList = new ArrayList<>();
+        for (DataEntity item : list) {
+            if (item == null) {
+                continue;
+            }
+            NetInfoEntity entity = new NetInfoEntity();
+            entity.setRoomName(item.getRoomName());
+            entity.setRoomLoc(item.getRoomLoc());
+            entity.setNetName(item.getNetName());
+            entity.setNetDetails(item.getNetDetails());
+            entity.setImgRoomList(item.getRoomImgList());
+            entity.setCustomRoom(item.getCustomRoom());
+            entityList.add(entity);
+        }
 
-        for (DataEntity item : list){
-            result.add(new Gson().toJson(item));
+        if (entityList.size() > 0) {
+            for (NetInfoEntity item : entityList) {
+                result.add(new Gson().toJson(item));
+            }
         }
 
         return result;
+    }
+
+    private List<String> submitScramInfo(List<DataEntity> list) {
+        List<String> result = new ArrayList<>();
+        List<ScramEntity> entityList = new ArrayList<>();
+
+        for (DataEntity item : list) {
+            if (item == null) {
+                continue;
+            }
+            ScramEntity entity = new ScramEntity();
+            entity.setScramblingId(item.getScramblingId());
+            entity.setChildName(item.getChildName());
+            entity.setStartTime(item.getStartTime());
+            entity.setEndTime(item.getEndTime());
+            entity.setScramblingRate(item.getScramblingRate());
+            entity.setScramblingCode(item.getScramblingCode());
+            entity.setScramblingLoc(item.getScramblingLoc());
+            entity.setCustomScrambling(item.getCustomScrambling());
+            entityList.add(entity);
+        }
+
+        if (entityList.size() > 0) {
+            for (ScramEntity item : entityList) {
+                result.add(new Gson().toJson(item));
+            }
+        }
+
+        return result;
+    }
+
+    private List<String> getAllImgs(List<DataEntity> list){
+        List<String> result = new ArrayList<>();
+        if (netFg != null && netFg.isVisible()){
+            for (DataEntity item : list){
+                result.addAll(item.getRoomImgList());
+            }
+        }
+        if (scramNewFg != null && scramNewFg.isVisible()){
+            for (DataEntity item : list){
+                result.addAll(item.getScramblingImgList());
+            }
+        }
+
+        return result;
+    }
+
+    public String getThemeText(){
+        String theme = "";
+
+        if (netFg != null && netFg.isVisible()){
+            theme = netFg.getKey();
+        }
+
+        if (scramNewFg != null && scramNewFg.isVisible()){
+            theme = scramNewFg.getKey();
+        }
+        return theme;
     }
 }

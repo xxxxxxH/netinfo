@@ -38,6 +38,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.adapter.ScramblingInfoImgAdapter;
 import com.xxxxxxH.netinfo.entity.DataEntity;
@@ -103,6 +104,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     public RoomNameAdapter roomadapter;
     private boolean isStart = true;
     private Dialog selectScramblingImgDlg = null;
+    private RecyclerView recyclerView;
 
     public ScramblingNewFragment() {
 
@@ -140,7 +142,6 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                 LinearLayoutManager.HORIZONTAL, false);
         imgScramblingRecyclerView.setLayoutManager(manager);
         imgScramblingRecyclerView.setAdapter(scramblingadapter);
-
         start.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
