@@ -334,11 +334,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+//                                boolean result = EmailUtil.autoSendMail(getThemeText(),
+//                                        data.toString(), address.getText().toString(),
+//                                        //UsefulSTMP.QQ,
+//                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,
+//                                        files.size() > 0 ? files.toArray(new String[]{}) : null);
                                 boolean result = EmailUtil.autoSendMail(getThemeText(),
                                         data.toString(), address.getText().toString(),
                                         //UsefulSTMP.QQ,
-                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,
-                                        files.size() > 0 ? files.toArray(new String[]{}) : null);
+                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,null);
                                 Message msg = new Message();
                                 msg.what = result ? 1 : -1;
                                 mHandler.sendMessage(msg);
@@ -466,18 +470,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Dialog dialog = null;
         dialog =
                 new AlertDialog.Builder(MainActivity.this).setTitle("提示").setMessage("是否保存当前数据").setNegativeButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                save();
-                dialog.dismiss();
-                add();
-            }
-        }).setPositiveButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).create();
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        save();
+                        dialog.dismiss();
+                        add();
+                    }
+                }).setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create();
         return dialog;
     }
 
