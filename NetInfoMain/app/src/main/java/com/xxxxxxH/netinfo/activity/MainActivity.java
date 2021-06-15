@@ -306,6 +306,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         DataEntity entity = submit();
 
+                        //获取当前页面所有的数据
+                        List<DataEntity> list = getCurAllData();
+
+                        //处理数据
+                        List<String> data = handleAllData(list);
 
                         new Thread(new Runnable() {
                             @Override
@@ -450,9 +455,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (scramNewFg != null && scramNewFg.isVisible()) {
             if (TextUtils.isEmpty(scramNewFg.getKey())) {
                 return;
-            }//16232511941041145306304960
-            //16232511941041145306304960
-            //1623250608548114530630496016232509759761145306304960162325089571111453063049601623251091366114530630496016232511273051145306304960162325099201911453063049601623251059775114530630496016232511941041145306304960
+            }
             if (TextUtils.isEmpty(MMKV.defaultMMKV().decodeString(Constant.KEY_SCRAM_ID)) && !MMKV.defaultMMKV().decodeString(Constant.KEY_SCRAM_ID).contains(scramNewFg.getKey())) {
                 notice = createNotice();
                 notice.show();
@@ -551,5 +554,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view.findViewById(R.id.btn_submit_cancel).setOnClickListener(this);
         view.findViewById(R.id.btn_submit_confirm).setOnClickListener(this);
         return dialog;
+    }
+
+    private List<DataEntity> getCurAllData() {
+        List<DataEntity> list = new ArrayList<>();
+        if (netFg != null && netFg.isVisible()) {
+            if (netFg.nameAdapter != null && netFg.nameAdapter.getData() != null && netFg.nameAdapter.getData().size() > 0) {
+                for (String key : netFg.nameAdapter.getData()) {
+                    DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
+                    list.add(entity);
+                }
+            }
+        }
+        if (scramNewFg != null && scramNewFg.isVisible()) {
+            if (scramNewFg.roomadapter != null && scramNewFg.roomadapter.getData() != null && scramNewFg.roomadapter.getData().size() > 0) {
+                for (String key : scramNewFg.roomadapter.getData()) {
+                    DataEntity entity = MMKV.defaultMMKV().decodeParcelable(key, DataEntity.class);
+                    list.add(entity);
+                }
+            }
+        }
+        return list;
+    }
+
+    private List<String> handleAllData(List<DataEntity> list){
+        List<String> result = new ArrayList<>();
+
+        for (DataEntity item : list){
+            result.add(new Gson().toJson(item));
+        }
+
+        return result;
     }
 }
