@@ -314,8 +314,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         new Gson().toJson(entity), address.getText().toString(),
                                         //UsefulSTMP.QQ,
                                         UsefulSTMP._163,
-                                        Constant.FROM, Constant.pwd, files.size() > 0 ?
-                                                files.toArray(new String[]{}) : null);
+                                        Constant.FROM, Constant.pwd, null);
+                                        // 按要求暂时不传文件
+                                        //Constant.FROM, Constant.pwd, files.size() > 0 ?
+                                                //files.toArray(new String[]{}) : null);
                                 Message msg = new Message();
                                 msg.what = result ? 1 : -1;
                                 mHandler.sendMessage(msg);
