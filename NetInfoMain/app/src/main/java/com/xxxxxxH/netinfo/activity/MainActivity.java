@@ -41,10 +41,12 @@ import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
 import com.xxxxxxH.netinfo.sendmain.UsefulSTMP;
 import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.ZipUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -700,11 +702,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String theme = "";
 
         if (netFg != null && netFg.isVisible()){
-            theme = netFg.getKey();
+            theme = "网元信息" + FormatUtils.formatDate(new Date());
         }
 
         if (scramNewFg != null && scramNewFg.isVisible()){
-            theme = scramNewFg.getKey();
+            theme = "加扰信息" + FormatUtils.formatDate(new Date());
         }
         return theme;
     }
