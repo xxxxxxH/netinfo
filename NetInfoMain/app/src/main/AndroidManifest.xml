@@ -24,14 +24,21 @@
             android:name="com.google.android.actions"
             android:resource="@xml/top_click_selector" />
         <provider
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.xxxxxxH.netinfo.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            android:name="androidx.core.content.FileProvider">
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="37:B9:52:B4:73:46:A8:BC:A0:A5:FF:37:E6:2B:97:C1:CD:EB:A6:11"/>
+        <service
+            android:name="com.amap.api.location.APSService"
+            android:foregroundServiceType="location" />
+
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -40,5 +47,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 </manifest>

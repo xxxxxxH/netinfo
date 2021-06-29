@@ -7,9 +7,18 @@ public class NetInfoEntity {
     private String roomName = "";//机房名称
     private String roomLoc = "";//网元坐标
     private String netName = "";//网元名称
+    private String point = "";//据点信息
     private HashMap<String, String> customRoom;//自定义字段
     private ArrayList<String> imgRoomList;//现场图片
     private HashMap<String, ArrayList<BoardDetailsEntity>> netDetails;//网元详细信息
+
+    public String getPoint() {
+        return point;
+    }
+
+    public void setPoint(String point) {
+        this.point = point;
+    }
 
     public String getRoomName() {
         return roomName;

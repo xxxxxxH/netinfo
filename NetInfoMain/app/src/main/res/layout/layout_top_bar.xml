@@ -27,4 +27,18 @@
         android:gravity="center"
         android:text="@string/scrambling_info_input"
         android:textColor="@color/black" />
+
+    <ImageView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/line" />
+
+    <TextView
+        android:id="@+id/tv_tour"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="光纤巡缆"
+        android:textColor="@color/black" />
 </LinearLayout>

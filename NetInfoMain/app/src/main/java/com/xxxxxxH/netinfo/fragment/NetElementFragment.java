@@ -88,6 +88,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     LinearLayout rootView;
     @BindView(R.id.room_img_loc)
     ImageView netImgLoc;
+    @BindView(R.id.room_point_et)
+    EditText point;
 
 
 
@@ -283,8 +285,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public boolean isHasEqualField(String field) {
         boolean result = false;
-        if (rootView.getChildCount() > 5) {
-            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
+        if (rootView.getChildCount() > 6) {
+            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 if (TextUtils.equals(item.getName(), field)) {
                     result = true;
@@ -560,6 +562,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         entity.setRoomLoc(netLoc.getText().toString());
         entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" :
                 roomName.getText().toString());
+        entity.setPoint(TextUtils.isEmpty(point.getText().toString()) ? "":point.getText().toString());
         entity.setNetDetails(map);
         entity.setRoomImgList(adapter.getData());
         entity.setCustomRoom(Constant.customItem);
@@ -578,6 +581,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
             netName.setText(entity.getNetName());
             netLoc.setText(entity.getRoomLoc());
             roomName.setText(entity.getRoomName());
+            point.setText(entity.getPoint());
             if (entity.getNetDetails() != null && entity.getNetDetails().size() > 0) {
                 map = entity.getNetDetails();
                 setNetAdapter(entity.getNetDetails());
@@ -593,8 +597,8 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
 
     public HashMap<String, String> getCustomItemData() {
         HashMap<String, String> data = new HashMap<>();
-        if (rootView.getChildCount() > 5) {
-            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
+        if (rootView.getChildCount() > 6) {
+            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 data.put(item.getName(), item.getContent());
             }
@@ -609,6 +613,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         }
         if (roomName != null) {
             roomName.setText("");
+        }
+        if (point != null){
+            point.setText("");
         }
         if (netRecyclerView != null && netInfoAdapter != null) {
             netInfoAdapter.updateData(new ArrayList<>());

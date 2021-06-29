@@ -10,7 +10,7 @@
         android:layout_marginBottom="48dp">
 
         <LinearLayout
-            android:id="@+id/ll_f_n"
+            android:id="@+id/ll_tour"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -23,18 +23,18 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/room_name_select">
+                    android:layout_toStartOf="@+id/tour_id_select">
 
                     <TextView
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
-                        android:text="@string/net_name"
+                        android:text="ID"
                         android:textColor="@color/black" />
 
                     <EditText
-                        android:id="@+id/net_name_et"
+                        android:id="@+id/tour_id_et"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/et_bg"
@@ -45,7 +45,7 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/room_name_select"
+                    android:id="@+id/tour_id_select"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -63,29 +63,92 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/room_img_loc">
+                    android:layout_marginEnd="12dp">
 
                     <TextView
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:layout_margin="12dp"
                         android:gravity="center"
-                        android:text="@string/room_loc"
+                        android:text="桩号"
+                        android:textColor="@color/black" />
+
+                    <EditText
+                        android:id="@+id/tour_code_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="12dp">
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="站点"
+                        android:textColor="@color/black" />
+
+                    <EditText
+                        android:id="@+id/tour_point"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/et_bg"
+                        android:hint="@string/input"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@+id/tour_img_loc">
+
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="12dp"
+                        android:gravity="center"
+                        android:text="经纬度"
                         android:textColor="@color/black" />
 
                     <TextView
-                        android:id="@+id/net_loc_tv"
+                        android:id="@+id/tour_loc_tv"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:hint="@string/room_loc"
+                        android:hint="经纬度"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/room_img_loc"
+                    android:id="@+id/tour_img_loc"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -96,99 +159,6 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="12dp">
-
-                    <TextView
-                        android:layout_width="100dp"
-                        android:layout_height="match_parent"
-                        android:layout_margin="12dp"
-                        android:gravity="center"
-                        android:text="@string/room_name"
-                        android:textColor="@color/black" />
-
-                    <EditText
-                        android:id="@+id/room_name_et"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/et_bg"
-                        android:hint="@string/input"
-                        android:paddingHorizontal="12dp"
-                        android:textColor="@color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="12dp">
-
-                    <TextView
-                        android:layout_width="100dp"
-                        android:layout_height="match_parent"
-                        android:layout_margin="12dp"
-                        android:gravity="center"
-                        android:text="据点信息"
-                        android:textColor="@color/black" />
-
-                    <EditText
-                        android:id="@+id/room_point_et"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/et_bg"
-                        android:hint="@string/input"
-                        android:paddingHorizontal="12dp"
-                        android:textColor="@color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp">
-
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_margin="12dp"
-                    android:gravity="center"
-                    android:text="@string/net_details"
-                    android:textColor="@color/black" />
-
-                <ImageView
-                    android:id="@+id/net_img_add"
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="12dp"
-                    android:scaleType="center"
-                    android:src="@drawable/activity_main_add_icon" />
-            </RelativeLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/net_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:layout_marginTop="10dp"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
@@ -196,7 +166,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_toStartOf="@+id/img_add">
+                    android:layout_toStartOf="@+id/tour_img_add">
 
                     <TextView
                         android:layout_width="100dp"
@@ -207,13 +177,13 @@
                         android:textColor="@color/black" />
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/img_recycler"
+                        android:id="@+id/tour_img_recycler"
                         android:layout_width="match_parent"
                         android:layout_height="100dp" />
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/img_add"
+                    android:id="@+id/tour_img_add"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -241,7 +211,7 @@
             android:textColor="@color/black" />
 
         <ImageView
-            android:id="@+id/custom_img_add_r"
+            android:id="@+id/custom_img_add_tour"
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="12dp"
