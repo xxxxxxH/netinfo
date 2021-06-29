@@ -170,8 +170,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Constant.imgScramblingList = new ArrayList<>();
         Constant.itemList = new ArrayList<>();
         Constant.itemList2 = new ArrayList<>();
+        Constant.itemList3 = new ArrayList<>();
         Constant.customItem = new HashMap<>();
         Constant.customItem2 = new HashMap<>();
+        Constant.customItem3 = new HashMap<>();
         Constant.Context = this;
     }
 
@@ -441,6 +443,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void saveKey3(String value) {
         if (tourFg == null) {
+            return;
+        }
+        if (TextUtils.isEmpty(value)){
             return;
         }
         Set<String> key = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_TOUR_ID);

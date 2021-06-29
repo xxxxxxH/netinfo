@@ -128,7 +128,7 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tour_id_select:
-                Set<String> data = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_ROOM_NAME);
+                Set<String> data = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_TOUR_ID);
                 if (data == null) {
                     Toast.makeText(getActivity(), "暂无保存数据", Toast.LENGTH_SHORT).show();
                     return;
