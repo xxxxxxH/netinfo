@@ -38,16 +38,23 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.activity.MapActivity;
 import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.adapter.ScramblingInfoImgAdapter;
 import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.event.MessageEvent;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
+import com.xxxxxxH.netinfo.utils.RouterUtils;
 import com.xxxxxxH.netinfo.widget.CustomItem;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -122,6 +129,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        EventBus.getDefault().register(this);
         getLocation();
         initView();
     }
@@ -132,6 +140,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         customField.setOnClickListener(this);
         refreshLoc.setOnClickListener(this);
         idSelect.setOnClickListener(this);
+        loc.setOnClickListener(this);
         id.setText(System.currentTimeMillis() + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Longitude)).replace(".", "") + FormatUtils.formatDouble(MMKV.defaultMMKV().decodeDouble(Constant.Latitude)).replace(".", ""));
         start.setText(FormatUtils.formatDate(new Date()));
         end.setText(FormatUtils.formatDate(new Date()));
@@ -295,6 +304,9 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
                     selectScramblingImgDlg.dismiss();
                 }
                 setOpenAlbumV2();
+                break;
+            case  R.id.scrambling_loc:
+                RouterUtils.getInstance().router(getActivity(), MapActivity.class, Constant.ROUTER_KEY, Constant.TYPE_SCRAM);
                 break;
         }
     }
@@ -490,7 +502,24 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         return id.getText().toString();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MessageEvent event) {
+        String[] message = event.getMessage();
+        String lat = message[0];
+        String longt = message[1];
+        String type = message[2];
+        if (TextUtils.equals(type, Constant.TYPE_SCRAM)) {
+            if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(longt)) {
+                loc.setText(longt + " , " + lat);
+            }
+        }
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
     class MyLocationListener implements LocationListener {
 
         @Override

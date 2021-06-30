@@ -34,16 +34,22 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.activity.MapActivity;
 import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.event.MessageEvent;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
+import com.xxxxxxH.netinfo.utils.RouterUtils;
 import com.xxxxxxH.netinfo.widget.CustomItem;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -106,6 +112,7 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
     public void onViewCreated(@NonNull @NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        EventBus.getDefault().register(this);
         getLocation();
         initView();
     }
@@ -115,6 +122,7 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
         imgAdd.setOnClickListener(this);
         custom.setOnClickListener(this);
         refresh.setOnClickListener(this);
+        tourLoc.setOnClickListener(this);
         adapter = new RoomInfoImgAdapter(getActivity(), null);
         adapter.setOnItemClickListener(this);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
@@ -198,6 +206,9 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
                     selectImgDlg.dismiss();
                 }
                 setOpenAlbumV2();
+                break;
+            case R.id.tour_loc_tv:
+                RouterUtils.getInstance().router(getActivity(), MapActivity.class, Constant.ROUTER_KEY, Constant.TYPE_TOUR);
                 break;
         }
     }
@@ -388,6 +399,25 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
                 new MyLocationListener());
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
                 new MyLocationListener());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MessageEvent event) {
+        String[] message = event.getMessage();
+        String lat = message[0];
+        String longt = message[1];
+        String type = message[2];
+        if (TextUtils.equals(type, Constant.TYPE_TOUR)) {
+            if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(longt)) {
+                tourLoc.setText(longt + " , " + lat);
+            }
+        }
     }
 
     class MyLocationListener implements LocationListener {

@@ -35,4 +35,9 @@ public class Constant {
 //    public static String pwd = "ZJTEZZVTXQGFTQAL";
     //debug  37:B9:52:B4:73:46:A8:BC:A0:A5:FF:37:E6:2B:97:C1:CD:EB:A6:11
     //release 81:56:4B:E7:23:74:F9:6C:DC:C5:34:8F:70:08:55:5A:B1:1C:D2:60
+    //路由区分使用
+    public static final String ROUTER_KEY = "ROUTER_KEY";
+    public static final String TYPE_NET = "NET";
+    public static final String TYPE_SCRAM = "SCRAM";
+    public static final String TYPE_TOUR = "TOUR";
 }

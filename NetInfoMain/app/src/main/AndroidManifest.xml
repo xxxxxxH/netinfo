@@ -20,9 +20,6 @@
             </intent-filter>
 
         </activity>
-        <meta-data
-            android:name="com.google.android.actions"
-            android:resource="@xml/top_click_selector" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.xxxxxxH.netinfo.fileprovider"
@@ -34,11 +31,12 @@
         </provider>
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="37:B9:52:B4:73:46:A8:BC:A0:A5:FF:37:E6:2B:97:C1:CD:EB:A6:11"/>
+            android:value="f0371110e07beb9bce9100f4e77d4e75"/>
         <service
             android:name="com.amap.api.location.APSService"
             android:foregroundServiceType="location" />
 
+        <activity android:name=".activity.MapActivity"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

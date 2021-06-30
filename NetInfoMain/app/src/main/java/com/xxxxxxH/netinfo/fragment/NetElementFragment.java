@@ -10,8 +10,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,12 +34,14 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
 import com.xxxxxxH.netinfo.R;
+import com.xxxxxxH.netinfo.activity.MapActivity;
 import com.xxxxxxH.netinfo.adapter.NetInfoAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomInfoImgAdapter;
 import com.xxxxxxH.netinfo.adapter.RoomNameAdapter;
 import com.xxxxxxH.netinfo.dialog.NetDetailsDialog;
 import com.xxxxxxH.netinfo.entity.BoardDetailsEntity;
 import com.xxxxxxH.netinfo.entity.DataEntity;
+import com.xxxxxxH.netinfo.event.MessageEvent;
 import com.xxxxxxH.netinfo.utils.Constant;
 import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
@@ -49,9 +49,14 @@ import com.xxxxxxH.netinfo.utils.GlideEngine;
 import com.xxxxxxH.netinfo.utils.NetDetailsBtnClickListener;
 import com.xxxxxxH.netinfo.utils.OnItemChildClickListener;
 import com.xxxxxxH.netinfo.utils.OnItemClickListener;
+import com.xxxxxxH.netinfo.utils.RouterUtils;
 import com.xxxxxxH.netinfo.widget.CustomFiberItem;
 import com.xxxxxxH.netinfo.widget.CustomItem;
 import com.xxxxxxH.netinfo.widget.CustomNetItem;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +95,6 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     ImageView netImgLoc;
     @BindView(R.id.room_point_et)
     EditText point;
-
 
 
     private LocationManager locationManager;
@@ -133,6 +137,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        EventBus.getDefault().register(this);
         getLocation();
         initView();
         iniAdapter();
@@ -151,6 +156,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         imgAdd.setOnClickListener(this);
         customAdd.setOnClickListener(this);
         netImgLoc.setOnClickListener(this);
+        netLoc.setOnClickListener(this);
     }
 
     private void iniAdapter() {
@@ -184,16 +190,15 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     }
 
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.room_img_loc:
-                if (FileUtils.isFastClick()){
+                if (FileUtils.isFastClick()) {
                     curLatitude = 0.0;
                     curLongitude = 0.0;
                     Toast.makeText(Constant.Context, "刷新成功", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     Toast.makeText(Constant.Context, "请勿重复点击", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -270,7 +275,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 }
                 break;
             case R.id.dialog_confirm_add_net:
-                if (TextUtils.isEmpty(boardNum.getText().toString())){
+                if (TextUtils.isEmpty(boardNum.getText().toString())) {
                     return;
                 }
                 addNetDialog.dismiss();
@@ -279,6 +284,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 detailsDialog.show();
                 addNetDetails(true, Integer.parseInt(boardNum.getText().toString()),
                         Integer.parseInt(portNum.getText().toString()), map);
+                break;
+            case R.id.net_loc_tv:
+                RouterUtils.getInstance().router(getActivity(), MapActivity.class, Constant.ROUTER_KEY, Constant.TYPE_NET);
                 break;
         }
     }
@@ -347,9 +355,9 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         if (isNew) {
             String s = "";
             int index = 0;
-            if (netInfoAdapter.getData().size() > 0){
+            if (netInfoAdapter.getData().size() > 0) {
                 s = netInfoAdapter.getData().get(netInfoAdapter.getItemCount() - 1);
-                index = TextUtils.isEmpty(s)?0:Integer.parseInt(s.substring(s.length()-1,s.length()));
+                index = TextUtils.isEmpty(s) ? 0 : Integer.parseInt(s.substring(s.length() - 1));
             }
             for (int i = 1; i < boardNum + 1; i++) {
                 CustomNetItem netItem = new CustomNetItem(getActivity());
@@ -562,7 +570,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         entity.setRoomLoc(netLoc.getText().toString());
         entity.setRoomName(TextUtils.isEmpty(roomName.getText().toString()) ? "" :
                 roomName.getText().toString());
-        entity.setPoint(TextUtils.isEmpty(point.getText().toString()) ? "":point.getText().toString());
+        entity.setPoint(TextUtils.isEmpty(point.getText().toString()) ? "" : point.getText().toString());
         entity.setNetDetails(map);
         entity.setRoomImgList(adapter.getData());
         entity.setCustomRoom(Constant.customItem);
@@ -614,7 +622,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
         if (roomName != null) {
             roomName.setText("");
         }
-        if (point != null){
+        if (point != null) {
             point.setText("");
         }
         if (netRecyclerView != null && netInfoAdapter != null) {
@@ -655,6 +663,24 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
                 new NetElementFragment.MyLocationListener());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(MessageEvent event) {
+        String[] message = event.getMessage();
+        String lat = message[0];
+        String longt = message[1];
+        String type = message[2];
+        if (TextUtils.equals(type, Constant.TYPE_NET)) {
+            if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(longt)) {
+                netLoc.setText(longt + " , " + lat);
+            }
+        }
+    }
 
     class MyLocationListener implements LocationListener {
 
