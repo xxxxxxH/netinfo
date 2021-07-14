@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
@@ -79,5 +80,49 @@ public class FileUtils {
             list.add(path + File.separator + files[i].getName());
         }
         return list;
+    }
+
+    public static void writeTxt2File(String content, String filePath,String fileName) throws Exception{
+
+        deletOldFile(filePath + File.separator + fileName);
+
+        makeFilePath(filePath,fileName);
+
+        String strFilePath = filePath + File.separator + fileName;
+
+        File file = new File(strFilePath);
+
+        if (!file.exists()){
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        RandomAccessFile raf = new RandomAccessFile(file,"rwd");
+        raf.seek(file.length());
+        raf.write(content.getBytes());
+        raf.close();
+    }
+
+    public static void makeFilePath(String filePath,String fileName)throws Exception{
+        File file = null;
+        file = new File(filePath + File.separator + fileName);
+
+        if (!file.exists()){
+            file.createNewFile();
+        }
+    }
+
+    public static void makeRootDirectory(String filePath) throws Exception{
+        File fileDir = null;
+        fileDir = new File(filePath);
+        if (!fileDir.exists()){
+            fileDir.mkdir();
+        }
+    }
+
+    public static void deletOldFile(String path){
+        File file = new File(path);
+        if (file.exists()){
+            file.delete();
+        }
     }
 }

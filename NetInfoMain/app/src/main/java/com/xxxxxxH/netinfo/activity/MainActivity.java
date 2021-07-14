@@ -43,6 +43,7 @@ import com.xxxxxxH.netinfo.fragment.ScramblingNewFragment;
 import com.xxxxxxH.netinfo.sendmain.EmailUtil;
 import com.xxxxxxH.netinfo.sendmain.UsefulSTMP;
 import com.xxxxxxH.netinfo.utils.Constant;
+import com.xxxxxxH.netinfo.utils.FileUtils;
 import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.ZipUtils;
 
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Constant.customItem2.clear();
                     }
 
-                    if (tourFg != null && tourFg.isVisible()){
+                    if (tourFg != null && tourFg.isVisible()) {
                         delData();
                         tourFg.removeCustomItem();
                         tourFg.clear();
@@ -318,8 +319,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
 
-                        if (tourFg != null && tourFg.isVisible()){
-                            if (TextUtils.isEmpty(tourFg.getKey())){
+                        if (tourFg != null && tourFg.isVisible()) {
+                            if (TextUtils.isEmpty(tourFg.getKey())) {
                                 Toast.makeText(MainActivity.this, "请填写id", Toast.LENGTH_SHORT).show();
                                 return;
                             }
@@ -336,25 +337,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //获取当前页面所有的数据
                         List<DataEntity> list = getCurAllData();
 
-                        Log.i("TAG", "开始压缩");
-                        boolean result = false;
-                        String zipPath =
-                                Environment.getExternalStorageDirectory() + File.separator +
-                                        "imgs.zip";
-                        try {
-                            List<String> data = new ArrayList<>();
-                            data = getAllImgs(list);
-                            if (data.size() != 0) {
-                                result = ZipUtils.zipFiles(data, zipPath);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.i("TAG", "压缩出错");
-                        }
-                        Log.i("TAG", "压缩结束 result = " + result);
-                        if (result) {
-                            files.add(zipPath);
-                        }
+//                        Log.i("TAG", "开始压缩");
+//                        boolean result = false;
+//                        String zipPath =
+//                                Environment.getExternalStorageDirectory() + File.separator +
+//                                        "imgs.zip";
+//                        try {
+//                            List<String> data = new ArrayList<>();
+//                            data = getAllImgs(list);
+//                            if (data.size() != 0) {
+//                                result = ZipUtils.zipFiles(data, zipPath);
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            Log.i("TAG", "压缩出错");
+//                        }
+//                        Log.i("TAG", "压缩结束 result = " + result);
+//                        if (result) {
+//                            files.add(zipPath);
+//                        }
 
 
                         DataEntity entity = submit();
@@ -369,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             data = submitScramInfo(list);
                         }
 
-                        if (tourFg != null && tourFg.isVisible()){
+                        if (tourFg != null && tourFg.isVisible()) {
                             data = submitTourInfo(list);
                         }
 
@@ -377,18 +378,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             return;
                         }
 
+                        String filePath =
+                                Environment.getExternalStorageDirectory() + File.separator +
+                                        "test.txt";
+                        try {
+                            FileUtils.writeTxt2File(data.toString(),
+                                    Environment.getExternalStorageDirectory() + "", "test.txt");
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "写入文件时出错", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        File file = new File(filePath);
+
+                        if (file.exists()) {
+                            files.add(filePath);
+                        }
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-//                                boolean result = EmailUtil.autoSendMail(getThemeText(),
-//                                        data.toString(), address.getText().toString(),
-//                                        //UsefulSTMP.QQ,
-//                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,
-//                                        files.size() > 0 ? files.toArray(new String[]{}) : null);
                                 boolean result = EmailUtil.autoSendMail(getThemeText(),
                                         data.toString(), address.getText().toString(),
-                                        //UsefulSTMP.QQ,
-                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd, null);
+                                        UsefulSTMP.QQ, Constant.FROM, Constant.pwd,
+                                        files.size() > 0 ? files.toArray(new String[]{}) : null);
+
                                 Message msg = new Message();
                                 msg.what = result ? 1 : -1;
                                 mHandler.sendMessage(msg);
@@ -397,8 +411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     } else {
                         Toast.makeText(MainActivity.this, "请输入正确邮箱地址", Toast.LENGTH_SHORT).show();
                     }
-                }
-                break;
+                } break;
         }
     }
 
@@ -445,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (tourFg == null) {
             return;
         }
-        if (TextUtils.isEmpty(value)){
+        if (TextUtils.isEmpty(value)) {
             return;
         }
         Set<String> key = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_TOUR_ID);
@@ -499,14 +512,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
-        if (tourFg != null && tourFg.isVisible()){
+        if (tourFg != null && tourFg.isVisible()) {
             keySet = MMKV.defaultMMKV().decodeStringSet(Constant.KEY_TOUR_ID);
-            if (keySet != null){
-                for (String key : keySet){
+            if (keySet != null) {
+                for (String key : keySet) {
                     MMKV.defaultMMKV().removeValueForKey(key);
                 }
                 keySet.clear();
-                MMKV.defaultMMKV().encode(Constant.KEY_TOUR_ID,keySet);
+                MMKV.defaultMMKV().encode(Constant.KEY_TOUR_ID, keySet);
             }
         }
     }
@@ -559,18 +572,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Dialog dialog = null;
         dialog =
                 new AlertDialog.Builder(MainActivity.this).setTitle("提示").setMessage("是否保存当前数据").setNegativeButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        save();
-                        dialog.dismiss();
-                        add();
-                    }
-                }).setPositiveButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create();
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                save();
+                dialog.dismiss();
+                add();
+            }
+        }).setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).create();
         return dialog;
     }
 
@@ -639,8 +652,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (netFg != null && netFg.isVisible()) {
             DataEntity netInfo = netFg.getNetInfo();
             DataEntity entity = new DataEntity(netInfo.getRoomName(), netInfo.getRoomLoc(),
-                    netInfo.getNetName(), netInfo.getPoint(), netFg.map, "", "", "", "", "", "", "",
-                    netFg.getCustomItemData(), new HashMap<>(), netInfo.getRoomImgList(),
+                    netInfo.getNetName(), netInfo.getPoint(), netFg.map, "", "", "", "", "", "",
+                    "", netFg.getCustomItemData(), new HashMap<>(), netInfo.getRoomImgList(),
                     new ArrayList<>(), "", "", "", "", new ArrayList<>(), new HashMap<>());
             MMKV.defaultMMKV().encode(netFg.getKey(), entity);
             saveKey(netFg.getKey());
@@ -650,14 +663,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     info.getScramblingId(), info.getChildName(), info.getStartTime(),
                     info.getEndTime(), info.getScramblingRate(), info.getScramblingCode(),
                     info.getScramblingLoc(), new HashMap<>(), scramNewFg.getCustomItemData(),
-                    new ArrayList<>(), info.getScramblingImgList(), "", "", "", "", new ArrayList<>(), new HashMap<>());
+                    new ArrayList<>(), info.getScramblingImgList(), "", "", "", "",
+                    new ArrayList<>(), new HashMap<>());
             MMKV.defaultMMKV().encode(scramNewFg.getKey(), entity);
             saveKey2(scramNewFg.getKey());
         } else if (tourFg != null && tourFg.isVisible()) {
             DataEntity tourInfo = tourFg.getNetTourInfo();
-            DataEntity entity = new DataEntity("", "", "", "", new HashMap<>(),
-                    "", "", "", "", "", "", "", new HashMap<>(), new HashMap<>(), new ArrayList<>(), new ArrayList<>(),
-                    tourInfo.getTourId(), tourInfo.getTourStake(), tourInfo.getTourPoint(), tourInfo.getTourLoc(), tourInfo.getTourImgList(), tourInfo.getTourCustom());
+            DataEntity entity = new DataEntity("", "", "", "", new HashMap<>(), "", "", "", "",
+                    "", "", "", new HashMap<>(), new HashMap<>(), new ArrayList<>(),
+                    new ArrayList<>(), tourInfo.getTourId(), tourInfo.getTourStake(),
+                    tourInfo.getTourPoint(), tourInfo.getTourLoc(), tourInfo.getTourImgList(),
+                    tourInfo.getTourCustom());
             MMKV.defaultMMKV().encode(tourFg.getKey(), entity);
             saveKey3(tourFg.getKey());
         }
@@ -680,26 +696,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         DataEntity entity = new DataEntity(netInfo != null ? netInfo.getRoomName() : "",
                 netInfo != null ? netInfo.getRoomLoc() : "", netInfo != null ?
-                netInfo.getNetName() : "",
-                netInfo != null ? netInfo.getPoint() : "",
-                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(),
-                info != null ? info.getScramblingId() : "",
-                info != null ? info.getChildName() : "",
-                info != null ? info.getStartTime() : "",
-                info != null ? info.getEndTime() : "",
-                info != null ? info.getScramblingRate() : "",
-                info != null ? info.getScramblingCode() : "",
-                info != null ? info.getScramblingLoc() : "",
-                netFg != null && netFg.getCustomItemData() != null ? netFg.getCustomItemData() : new HashMap<>(),
-                scramNewFg != null && scramNewFg.getCustomItemData() != null ? scramNewFg.getCustomItemData() : new HashMap<>(),
-                netFg != null && netInfo != null ? netInfo.getRoomImgList() : new ArrayList<>(),
-                scramNewFg != null && info != null ? info.getScramblingImgList() : new ArrayList<>(),
-                tourFg != null && tourInfo != null ? tourInfo.getTourId() : "",
-                tourFg != null && tourInfo != null ? tourInfo.getTourStake() : "",
-                tourFg != null && tourInfo != null ? tourInfo.getTourPoint() : "",
-                tourFg != null && tourInfo != null ? tourInfo.getTourLoc() : "",
-                tourFg != null && tourInfo != null ? tourInfo.getTourImgList() : new ArrayList<>(),
-                tourFg != null && tourInfo != null ? tourInfo.getTourCustom() : new HashMap<>());
+                netInfo.getNetName() : "", netInfo != null ? netInfo.getPoint() : "",
+                netInfo != null && netInfo.getNetDetails() != null && netInfo.getNetDetails().size() > 0 ? netInfo.getNetDetails() : new HashMap<>(), info != null ? info.getScramblingId() : "", info != null ? info.getChildName() : "", info != null ? info.getStartTime() : "", info != null ? info.getEndTime() : "", info != null ? info.getScramblingRate() : "", info != null ? info.getScramblingCode() : "", info != null ? info.getScramblingLoc() : "", netFg != null && netFg.getCustomItemData() != null ? netFg.getCustomItemData() : new HashMap<>(), scramNewFg != null && scramNewFg.getCustomItemData() != null ? scramNewFg.getCustomItemData() : new HashMap<>(), netFg != null && netInfo != null ? netInfo.getRoomImgList() : new ArrayList<>(), scramNewFg != null && info != null ? info.getScramblingImgList() : new ArrayList<>(), tourFg != null && tourInfo != null ? tourInfo.getTourId() : "", tourFg != null && tourInfo != null ? tourInfo.getTourStake() : "", tourFg != null && tourInfo != null ? tourInfo.getTourPoint() : "", tourFg != null && tourInfo != null ? tourInfo.getTourLoc() : "", tourFg != null && tourInfo != null ? tourInfo.getTourImgList() : new ArrayList<>(), tourFg != null && tourInfo != null ? tourInfo.getTourCustom() : new HashMap<>());
 
         return entity;
     }
@@ -857,8 +855,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 result.addAll(item.getScramblingImgList());
             }
         }
-        if (tourFg != null && tourFg.isVisible()){
-            for (DataEntity item : list){
+        if (tourFg != null && tourFg.isVisible()) {
+            for (DataEntity item : list) {
                 result.addAll(item.getTourImgList());
             }
         }
@@ -877,7 +875,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             theme = "加扰信息" + FormatUtils.formatDate(new Date());
         }
 
-        if (tourFg != null && tourFg.isVisible()){
+        if (tourFg != null && tourFg.isVisible()) {
             theme = "光纤巡缆" + FormatUtils.formatDate(new Date());
         }
         return theme;
