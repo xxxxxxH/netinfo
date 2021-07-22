@@ -360,7 +360,7 @@ public class NetTourFragment extends Fragment implements View.OnClickListener, O
     public HashMap<String, String> getCustomItemData() {
         HashMap<String, String> data = new HashMap<>();
         if (rootView.getChildCount() > 5) {
-            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
+            for (int i = 5; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 data.put(item.getName(), item.getContent());
             }

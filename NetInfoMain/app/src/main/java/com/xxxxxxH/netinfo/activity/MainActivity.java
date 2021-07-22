@@ -48,6 +48,10 @@ import com.xxxxxxH.netinfo.utils.FormatUtils;
 import com.xxxxxxH.netinfo.utils.ZipUtils;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -280,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 submitDlg.show();
                 break;
             case R.id.tv_add:
+                save();
                 isSaved();
                 if (notice == null || !notice.isShowing()) {
                     add();
@@ -291,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.tv_save:
                 save();
-                Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+
                 break;
             case R.id.btn_submit_cancel:
                 if (submitDlg != null && submitDlg.isShowing()) {
@@ -362,16 +367,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         data.clear();
 
+                        String filename = "";
+                        Date dt=new Date();
+                        SimpleDateFormat matter1=new SimpleDateFormat("yyyyMMdd");
+                        String filedate =  matter1.format(dt);
+                        filedate.replace("","/");
+
                         if (netFg != null && netFg.isVisible()) {
                             data = submitNetInfo(list);
+                            filename = "inventory-"+list.get(0).getPoint()+"-"+filedate+".json";
                         }
 
                         if (scramNewFg != null && scramNewFg.isVisible()) {
                             data = submitScramInfo(list);
+                            filename = "scramble-"+list.get(0).getChildName()+"-"+filedate+".json";
                         }
 
                         if (tourFg != null && tourFg.isVisible()) {
                             data = submitTourInfo(list);
+                            filename = "nettour-"+list.get(0).getTourPoint()+"-"+filedate+".json";
                         }
 
                         if (data.size() == 0) {
@@ -380,10 +394,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         String filePath =
                                 Environment.getExternalStorageDirectory() + File.separator +
-                                        "test.txt";
+                                        filename;
                         try {
                             FileUtils.writeTxt2File(data.toString(),
-                                    Environment.getExternalStorageDirectory() + "", "test.txt");
+                                    Environment.getExternalStorageDirectory() + "", filename);
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "写入文件时出错", Toast.LENGTH_SHORT).show();
                             return;
@@ -651,6 +665,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void save() {
         if (netFg != null && netFg.isVisible()) {
             DataEntity netInfo = netFg.getNetInfo();
+            if(TextUtils.isEmpty(netInfo.getRoomName()))
+            {
+                Toast.makeText(this, "请输入机房名称", Toast.LENGTH_LONG).show();
+                return;
+            }
             DataEntity entity = new DataEntity(netInfo.getRoomName(), netInfo.getRoomLoc(),
                     netInfo.getNetName(), netInfo.getPoint(), netFg.map, "", "", "", "", "", "",
                     "", netFg.getCustomItemData(), new HashMap<>(), netInfo.getRoomImgList(),
@@ -670,13 +689,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (tourFg != null && tourFg.isVisible()) {
             DataEntity tourInfo = tourFg.getNetTourInfo();
             DataEntity entity = new DataEntity("", "", "", "", new HashMap<>(), "", "", "", "",
-                    "", "", "", new HashMap<>(), new HashMap<>(), new ArrayList<>(),
+                    "", "", "", tourFg.getCustomItemData(), new HashMap<>(), new ArrayList<>(),
                     new ArrayList<>(), tourInfo.getTourId(), tourInfo.getTourStake(),
                     tourInfo.getTourPoint(), tourInfo.getTourLoc(), tourInfo.getTourImgList(),
                     tourInfo.getTourCustom());
             MMKV.defaultMMKV().encode(tourFg.getKey(), entity);
             saveKey3(tourFg.getKey());
         }
+        Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
     }
 
     //提交
@@ -776,7 +796,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             entity.setNetName(item.getNetName());
             entity.setPoint(item.getPoint());
             entity.setNetDetails(item.getNetDetails());
-            entity.setImgRoomList(item.getRoomImgList());
+            entity.setImgRoomList(null==item.getRoomImgList()||item.getRoomImgList().size()==0?new ArrayList<>():item.getRoomImgList());
             entity.setCustomRoom(item.getCustomRoom());
             entityList.add(entity);
         }
@@ -806,6 +826,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             entity.setScramblingRate(item.getScramblingRate());
             entity.setScramblingCode(item.getScramblingCode());
             entity.setScramblingLoc(item.getScramblingLoc());
+            entity.setImgScramblingList(null == item.getScramblingImgList()||item.getScramblingImgList().size()==0?new ArrayList<>():item.getScramblingImgList());
             entity.setCustomScrambling(item.getCustomScrambling());
             entityList.add(entity);
         }
@@ -829,9 +850,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             NetTourEntity entity = new NetTourEntity();
             entity.setId(item.getTourId());
             entity.setStake(item.getTourStake());
-            entity.setPoint(item.getPoint());
+            entity.setPoint(item.getTourPoint());
             entity.setLoc(item.getTourLoc());
-            entity.setImgList(item.getTourImgList());
+            entity.setImgList(null==item.getTourImgList()||item.getTourImgList().size()==0?new ArrayList<>():item.getTourImgList());
             entity.setCustom(item.getTourCustom());
             entityList.add(entity);
         }

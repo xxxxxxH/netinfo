@@ -390,6 +390,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
         entity.setScramblingLoc(loc == null || TextUtils.isEmpty(loc.getText().toString()) ? "" :
                 loc.getText().toString());
         entity.setScramblingImgList(scramblingadapter.getData());
+        entity.setCustomScrambling(Constant.customItem2);
 
         return entity;
     }
@@ -470,7 +471,7 @@ public class ScramblingNewFragment extends Fragment implements View.OnClickListe
     public boolean isHasEqualField(String field) {
         boolean result = false;
         if (rootView.getChildCount() > 7) {
-            for (int i = 8; i <= rootView.getChildCount() - 1; i++) {
+            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 if (TextUtils.equals(item.getName(), field)) {
                     result = true;

@@ -28,7 +28,7 @@ public class DataEntity implements Parcelable {
     private String scramblingCode = "";
     private String scramblingLoc = "";
     private HashMap<String, String> customRoom;//自定义字段
-    private HashMap<String, String> customScrambling;
+    private HashMap<String, String> customScrambling;//自定义字段
     private ArrayList<String> imgRoomList;//现场图片
     private ArrayList<String> imgScramblingList;//现场图片
     private HashMap<String, ArrayList<BoardDetailsEntity>> netDetails;//网元详细信息

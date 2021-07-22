@@ -38,7 +38,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/et_bg"
-                        android:hint="@string/input"
+                        android:hint="请输入*"
+                        android:textColorHint="@color/red"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/black"
                         android:textSize="14sp" />

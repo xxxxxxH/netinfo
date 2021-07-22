@@ -606,7 +606,7 @@ public class NetElementFragment extends Fragment implements View.OnClickListener
     public HashMap<String, String> getCustomItemData() {
         HashMap<String, String> data = new HashMap<>();
         if (rootView.getChildCount() > 6) {
-            for (int i = 7; i <= rootView.getChildCount() - 1; i++) {
+            for (int i = 6; i <= rootView.getChildCount() - 1; i++) {
                 CustomItem item = (CustomItem) rootView.getChildAt(i);
                 data.put(item.getName(), item.getContent());
             }
